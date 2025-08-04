@@ -188,6 +188,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             cmdBloque.Parameters.AddWithValue("@ORDEN", bloque.OrdenBloque);
                             cmdBloque.Parameters.AddWithValue("@ESTADO", bloque.Estado);
                             cmdBloque.Parameters.AddWithValue("@FECHA_CREACION", DateTime.Now);
+                            cmdBloque.Parameters.AddWithValue("@USUARIO_CREACION", encuesta.UsuarioCreacion);
 
                             var resultBloque = await cmdBloque.ExecuteScalarAsync();
                             if (resultBloque == null || resultBloque == DBNull.Value)

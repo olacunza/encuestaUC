@@ -1,4 +1,5 @@
-﻿using AssesmentUC.Service.DTO.Respuesta;
+﻿using AssesmentUC.Model.Entity;
+using AssesmentUC.Service.DTO.Respuesta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace AssesmentUC.Service.Service.Interface
 {
     public interface IRespuestaService
     {
-        public Task<string> ListarEncuestaRespuestaAsync();
+        public Task<List<RespuestaListAllDTO>> ListarEncuestaRespuestaAsync(string alumnoId);
         public Task RegistrarRespuestaAsync(RespuestaEncuestaCreateDTO dto);
         public Task<bool> VerificarSiRespondioAsync(int encuestaId, string AlumnoId);
         public Task<bool> VerificarEncuestaActivaAsync(int encuestaId);

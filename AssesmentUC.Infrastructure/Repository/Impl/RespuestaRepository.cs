@@ -20,10 +20,30 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<string> ListarEncuestaRespuestaRepository()
+        public async Task<List<RespuestaEncuesta>> ListarEncuestaRespuestaRepository(string alumnoId)
         {
-            var rtpaRepository = _connectionString;
-            return rtpaRepository;
+            var lista = new List<RespuestaEncuesta>();
+
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ENCUESTAS_RESPONDIDAS", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                lista.Add(new RespuestaEncuesta
+                {
+                    EncuestaId = reader.GetInt32(reader.GetOrdinal("ENCUESTA_ID")),
+                    AlumnoId = alumnoId,
+                    FechaRespuesta = reader.GetDateTime(reader.GetOrdinal("FECHA_RESPUESTA")),
+                    Completado = reader.GetBoolean(reader.GetOrdinal("COMPLETADO"))
+                });
+            }
+
+            return lista;
         }
 
         public async Task RegistrarRespuestaRepository(RespuestaEncuesta respuestaModel)

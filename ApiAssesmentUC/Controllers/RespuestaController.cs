@@ -17,10 +17,10 @@ namespace AssesmentUC.Api.Controllers
             _respuestaService = respuestaService;
         }
 
-        [HttpGet("ListarRespuestasEncuestas")]
-        public async Task<IActionResult> ListarRespuestasEncuestasAsync()
+        [HttpGet("ListarRespuestasEncuestas/{alumnoID}")]
+        public async Task<IActionResult> ListarRespuestasEncuestasAsync(string alumnoID)
         {
-            var encuesta = await _respuestaService.ListarEncuestaRespuestaAsync();
+            var encuesta = await _respuestaService.ListarEncuestaRespuestaAsync(alumnoID);
             return Ok(encuesta);
         }
 

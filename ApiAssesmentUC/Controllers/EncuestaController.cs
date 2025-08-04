@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AssesmentUC.Service.Service.Interface;
 using AssesmentUC.Service.DTO.Encuesta;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Pdf;
 
 namespace AssesmentUC.Api.Controllers
 {
@@ -84,6 +86,35 @@ namespace AssesmentUC.Api.Controllers
             await _encuestaService.EliminarPreguntaAsync(id, "usuario-olacunza");
             return Ok("Pregunta Eliminada");
         }
+
+        [HttpGet("GenerarPdfEncuesta/{id}")]
+        public async Task<IActionResult> GenerarPdfEncuesta(int id)
+        {
+            try
+            {
+                var pdfBytes = await _encuestaService.GenerarPdfEncuesta(id);
+                return File(pdfBytes, "application/pdf", $"encuesta_{id}_{DateTime.Now}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al generar PDF: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GenerarExcelEncuesta/{id}")]
+        public async Task<IActionResult> GenerarExcelEncuesta(int id)
+        {
+            try
+            {
+                var excelBytes = await _encuestaService.GenerarExcelEncuesta(id);
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"encuesta_{id}_{DateTime.Now}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al generar Excel: {ex.Message}");
+            }
+        }
+
 
     }
 }

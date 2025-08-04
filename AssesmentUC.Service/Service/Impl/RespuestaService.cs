@@ -19,10 +19,19 @@ namespace AssesmentUC.Service.Service.Impl
             _respuestaRepository = respuestaRepository;
         }
 
-        public async Task<string> ListarEncuestaRespuestaAsync()
+        public async Task<List<RespuestaListAllDTO>> ListarEncuestaRespuestaAsync(string alumnoId)
         {
-            var rpta = await _respuestaRepository.ListarEncuestaRespuestaRepository();
-            return rpta;
+            var rpta = await _respuestaRepository.ListarEncuestaRespuestaRepository(alumnoId);
+
+            return rpta.Select(r => new RespuestaListAllDTO
+            {
+                EncuestaId = r.EncuestaId,
+                //NombreEncuesta = r.NombreEncuesta ?? "(Encuesta no encontrada)", // CRUZAR CON OTRO SERVICIO PARA TRAER EL NOMBRE DE LA ENCUESTA
+                NombreEncuesta = "nombreDefault",
+                FechaRespuesta = r.FechaRespuesta,
+                Completado = r.Completado
+            }).ToList();
+
         }
 
         public async Task RegistrarRespuestaAsync(RespuestaEncuestaCreateDTO dto)

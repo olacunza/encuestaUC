@@ -16,5 +16,8 @@ namespace AssesmentUC.Service.Service.Interface
         public Task EliminarEncuestaAsync(int id, string usuario);
         public Task EliminarBloqueAsync(int id, string usuario);
         public Task EliminarPreguntaAsync(int id, string usuario);
+        public Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId);
+        public Task<byte[]> GenerarPdfEncuesta(int id);
+        public Task<byte[]> GenerarExcelEncuesta(int id);
     }
 }
