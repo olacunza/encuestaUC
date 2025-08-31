@@ -11,6 +11,11 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
     {
         public Task<List<Encuesta>> ListarEncuestasRepository();
         public Task<Encuesta> ListarEncuestaIdRepository(int id);
+        public Task<List<Encuesta>> ListarTipoEncuestaRepository();
+        public Task<List<Encuesta>> ListarSedesRepository();
+        public Task<List<Encuesta>> ListarPeriodosRepository();
+        public Task<List<Encuesta>> ListarSeccionesRepository();
+        public Task<List<Encuesta>> ListarTipoProgramaRepository();
         public Task<int> CrearEncuestaRepository(Encuesta encuesta);
         public Task EditarEncuestaRepository(Encuesta encuesta);
         public Task EliminarEncuestaRepository(int id, string usuario);

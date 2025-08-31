@@ -31,7 +31,9 @@ namespace AssesmentUC.Service.Service.Impl
                 NombreEncuesta = e.NombreEncuesta,
                 DescripcionEncuesta = e.DescripcionEncuesta,
                 TipoPrograma = e.TipoPrograma,
-                FechaCreacion = e.FechaCreacion
+                NombreTipoEncuesta = e.NombreTipoEncuesta,
+                FechaCreacion = e.FechaCreacion,
+                Completado = e.Completado
             }).ToList();
 
             return dtoList;
@@ -46,6 +48,7 @@ namespace AssesmentUC.Service.Service.Impl
                 EncuestaId = encuesta.EncuestaId,
                 NombreEncuesta = encuesta.NombreEncuesta,
                 TipoPrograma = encuesta.TipoPrograma,
+                TipoEncuesta = encuesta.NombreTipoEncuesta,
                 Sede = encuesta.Sede,
                 Periodo = encuesta.Periodo,
                 Seccion = encuesta.Seccion,
@@ -73,16 +76,88 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoEncuesta;
         }
 
+        public async Task<List<ListaTiposDTO>> ListarTipoEncuesta()
+        {
+            var tiposEncuesta = await _encuestaRepository.ListarTipoEncuestaRepository();
+
+            var dtoList = tiposEncuesta
+                .Select(e => new ListaTiposDTO
+                {
+                    ListaTipoId = e.TipoEncuestaId,
+                    NombreTipo = e.NombreTipoEncuesta
+                })
+                .ToList();
+
+            return dtoList;
+        }
+        public async Task<List<ListaTiposDTO>> ListarSedes()
+        {
+            var sedes = await _encuestaRepository.ListarSedesRepository();
+
+            var dtoList = sedes
+                .Select(e => new ListaTiposDTO
+                {
+                    SedeId = e.SedeId,
+                    NombreTipo = e.Sede
+                })
+                .ToList();
+
+            return dtoList;
+        }
+        public async Task<List<ListaTiposDTO>> ListarPeriodos()
+        {
+            var periodos = await _encuestaRepository.ListarPeriodosRepository();
+
+            var dtoList = periodos
+                .Select(e => new ListaTiposDTO
+                {
+                    PeriodoId = e.PeriodoId,
+                    NombreTipo = e.Periodo
+                })
+                .ToList();
+
+            return dtoList;
+        }
+        public async Task<List<ListaTiposDTO>> ListarSecciones()
+        {
+            var secciones = await _encuestaRepository.ListarSeccionesRepository();
+
+            var dtoList = secciones
+                .Select(e => new ListaTiposDTO
+                {
+                    SeccionId = e.SeccionId,
+                    NombreTipo = e.Seccion
+                })
+                .ToList();
+
+            return dtoList;
+        }
+        public async Task<List<ListaTiposDTO>> ListarTipoPrograma()
+        {
+            var tiposPrograma = await _encuestaRepository.ListarTipoProgramaRepository();
+
+            var dtoList = tiposPrograma
+                .Select(e => new ListaTiposDTO
+                {
+                    ListaTipoId = e.TipoProgramaId,
+                    NombreTipo = e.TipoPrograma
+                })
+                .ToList();
+
+            return dtoList;
+        }
+
         public async Task<int> CrearEncuestaAsync(EncuestaCreateDTO dto, string usuario)
         {
             var encuesta = new Encuesta
             {
                 NombreEncuesta = dto.NombreEncuesta,
                 DescripcionEncuesta = dto.DescripcionEncuesta,
-                Sede = dto.Sede,
-                TipoPrograma = dto.TipoPrograma,
-                Periodo = dto.Periodo,
-                Seccion = dto.Seccion,
+                SedeId = dto.SedeId,
+                TipoProgramaId = dto.TipoProgramaId,
+                TipoEncuestaId = dto.TipoEncuestaId,
+                PeriodoId = dto.PeriodoId,
+                SeccionId = dto.SeccionId,
                 FechaInicio = dto.FechaInicio,
                 FechaFin = dto.FechaFin,
                 FechaCreacion = DateTime.Now,
@@ -119,10 +194,11 @@ namespace AssesmentUC.Service.Service.Impl
                 EncuestaId = dto.EncuestaId,
                 NombreEncuesta = dto.NombreEncuesta ?? string.Empty,
                 DescripcionEncuesta = dto.DescripcionEncuesta ?? string.Empty,
-                TipoPrograma = dto.TipoPrograma ?? 0,
-                Sede = dto.Sede ?? 0,
-                Periodo = dto.Preiodo ?? String.Empty,
-                Seccion = dto.Seccion ?? String.Empty,
+                TipoProgramaId = dto.TipoProgramaId ?? 0,
+                TipoEncuestaId = dto.TipoEncuestaId ?? 0,
+                SedeId = dto.SedeId ?? string.Empty,
+                Periodo = dto.PeriodoId ?? string.Empty,
+                Seccion = dto.Seccion ?? string.Empty,
                 FechaInicio = dto.FechaInicio ?? DateTime.MinValue,
                 FechaFin = dto.FechaFin ?? DateTime.MinValue,
                 Activo = dto.Activo,

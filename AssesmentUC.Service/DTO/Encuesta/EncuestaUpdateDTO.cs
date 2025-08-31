@@ -11,15 +11,14 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public int EncuestaId { get; set; }
         public string? NombreEncuesta { get; set; }
         public string? DescripcionEncuesta { get; set; }
-        public int? TipoPrograma { get; set; }
-        public int? Sede { get; set; }
-        public string? Preiodo { get; set; }
+        public int? TipoProgramaId { get; set; }
+        public int? TipoEncuestaId { get; set; }
+        public string? SedeId { get; set; }
+        public string? PeriodoId { get; set; }
         public string? Seccion { get; set; }
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public bool Activo { get; set; }
-        public string UsuarioModificacion { get; set; } = null!;
-        public DateTime FechaModificacion { get; set; }
         public List<BloqueUpdateDTO> Bloques { get; set; } = new List<BloqueUpdateDTO>();
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Abstractions;
 
 namespace AssesmentUC.Service.DTO.Encuesta
 {
@@ -11,8 +12,10 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public int EncuestaId { get; set; }
         public string NombreEncuesta { get; set; } = string.Empty;
         public string DescripcionEncuesta { get; set; } = string.Empty;
-        public int TipoPrograma { get; set; }
+        public string TipoPrograma { get; set; } = null!;
+        public string NombreTipoEncuesta { get; set; } = null!;
         public bool Activo { get; set; }
+        public bool Completado { get; set; }
         public DateTime FechaCreacion { get; set; }
     }
 }

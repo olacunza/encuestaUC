@@ -17,7 +17,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
         public RespuestaRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("BDPRACTICAS")!;
         }
 
         public async Task<List<RespuestaEncuesta>> ListarEncuestaRespuestaRepository(string alumnoId)
@@ -94,6 +94,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             using var cmd = new SqlCommand("ENCUESTA.VALIDAR_RESPUESTA_ALUMNO", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
             var result = await cmd.ExecuteScalarAsync();
@@ -105,6 +106,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             using var cmd = new SqlCommand("ENCUESTA.VALIDAR_ENCUESTA_ACTIVA", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             var result = await cmd.ExecuteScalarAsync();
             return result != null;

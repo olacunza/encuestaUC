@@ -35,18 +35,18 @@ namespace AssesmentUC.Api.Controllers
                 if (!encuestaRespondida)
                 {
                     await _respuestaService.RegistrarRespuestaAsync(dto);
-                    return Ok("Respuestas guardadas correctamente");
+                    return Ok(new { success = true, message = "Respuestas guardadas correctamente" });
 
                 }
                 else
                 {
-                    return Ok("El alumno ya ha respondido la encuesta");
+                    return Ok(new { success = false, message = "El alumno ya ha respondido la encuesta" });
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(500, "Error al registrar la respuesta");
+                return StatusCode(500, new { success = false, message = "Error al registrar la respuesta" });
             }
         }
 

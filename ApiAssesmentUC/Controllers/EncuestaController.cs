@@ -30,13 +30,55 @@ namespace AssesmentUC.Api.Controllers
             return Ok(encuesta);
         }
 
+        [HttpGet("ListarTipoEncuesta")]
+        public async Task<IActionResult> ListarTipoEncuestaAsync()
+        {
+            var tipoEncuesta = await _encuestaService.ListarTipoEncuesta();
+            return Ok(tipoEncuesta);
+        }
+
+        [HttpGet("ListarSedes")]
+        public async Task<IActionResult> ListarSedesAsync()
+        {
+            var sedes = await _encuestaService.ListarSedes();
+            return Ok(sedes);
+        }
+
+        [HttpGet("ListarPeriodos")]
+        public async Task<IActionResult> ListarPeriodosAsync()
+        {
+            var periodos = await _encuestaService.ListarPeriodos();
+            return Ok(periodos);
+        }
+
+        [HttpGet("ListarSecciones")]
+        public async Task<IActionResult> ListarSeccionesAsync()
+        {
+            var secciones = await _encuestaService.ListarSecciones();
+            return Ok(secciones);
+        }
+
+        [HttpGet("ListarTipoPrograma")]
+        public async Task<IActionResult> ListarTipoProgramaAsync()
+        {
+            var tipoPrograma = await _encuestaService.ListarTipoPrograma();
+            return Ok(tipoPrograma);
+        }
+
+        //[HttpGet("FiltrarCabeceraEncuesta")]
+        //public async Task<IActionResult> FiltrarCabeceraEncuestaAsync()
+        //{
+        //    var filtrarCabecera = await _encuestaService.FiltrarCabeceraEncuesta();
+        //    return Ok(filtrarCabecera);
+        //}
+
         [HttpPost("CrearEncuesta")]
         public async Task<IActionResult> CrearEncuesta([FromBody] EncuestaCreateDTO dto, string usuario)
         {
             try
             {
-                await _encuestaService.CrearEncuestaAsync(dto, "usuario-olacunza");
-                return Ok("Encuesta creada");
+                await _encuestaService.CrearEncuestaAsync(dto, usuario);
+                return Ok(new { success = true, message = "Encuesta creada" });
             }
             catch (InvalidOperationException ex)
             {
@@ -52,12 +94,12 @@ namespace AssesmentUC.Api.Controllers
         public async Task<IActionResult> EditarEncuestaAsync(int id, [FromBody] EncuestaUpdateDTO dto, string usuario)
         {
             if ( id != dto.EncuestaId )
-                return BadRequest("El ID enviado no coincide con el DTO");
+                return BadRequest(new { success = false, message = "El ID enviado no coincide con el DTO" });
 
             try
             {
-                await _encuestaService.EditarEncuestaAsync(dto, "usuario-olacunza");
-                return Ok("Encuesta editada correctamente");
+                await _encuestaService.EditarEncuestaAsync(dto, usuario);
+                return Ok(new { success = true, message = "Encuesta editada correctamente" });
             }
             catch (Exception ex)
             {
@@ -69,22 +111,22 @@ namespace AssesmentUC.Api.Controllers
         [HttpDelete("EliminarEncuesta/{id}")]
         public async Task<IActionResult> EliminarEncuestaAsync(int id, string usuario)
         {
-            await _encuestaService.EliminarEncuestaAsync(id, "usuario-olacunza");
-            return Ok("Encuesta Eliminada");
+            await _encuestaService.EliminarEncuestaAsync(id, usuario);
+            return Ok(new { success = true, message = "Encuesta eliminada" });
         }
 
         [HttpDelete("EliminarBloque/{id}")]
         public async Task<IActionResult> EliminarBloqueAsync(int id, string usuario)
         {
-            await _encuestaService.EliminarBloqueAsync(id, "usuario-olacunza");
-            return Ok("Bloque Eliminado");
+            await _encuestaService.EliminarBloqueAsync(id, usuario);
+            return Ok(new { success = true, message = "Bloque eliminado" });
         }
 
         [HttpDelete("EliminarPregunta/{id}")]
         public async Task<IActionResult> EliminarPreguntaAsync(int id, string usuario)
         {
-            await _encuestaService.EliminarPreguntaAsync(id, "usuario-olacunza");
-            return Ok("Pregunta Eliminada");
+            await _encuestaService.EliminarPreguntaAsync(id, usuario);
+            return Ok(new { success = true, message = "Pregunta eliminada" });
         }
 
         [HttpGet("GenerarPdfEncuesta/{id}")]
@@ -97,7 +139,7 @@ namespace AssesmentUC.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error al generar PDF: {ex.Message}");
+                return BadRequest(new { success = false, message = $"Error al generar PDF: {ex.Message}" });
             }
         }
 
@@ -111,7 +153,7 @@ namespace AssesmentUC.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error al generar Excel: {ex.Message}");
+                return BadRequest(new { success = false, message = $"Error al generar Excel: {ex.Message}" });
             }
         }
 

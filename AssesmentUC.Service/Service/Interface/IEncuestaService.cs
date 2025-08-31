@@ -11,6 +11,12 @@ namespace AssesmentUC.Service.Service.Interface
     {
         public Task<List<EncuestaListAllDTO>> ListarEncuestas();
         public Task<EncuestaDetailDTO> ListarEncuestaId(int id);
+        public Task<List<ListaTiposDTO>> ListarTipoEncuesta();
+        public Task<List<ListaTiposDTO>> ListarSedes();
+        public Task<List<ListaTiposDTO>> ListarPeriodos();
+        public Task<List<ListaTiposDTO>> ListarSecciones();
+        public Task<List<ListaTiposDTO>> ListarTipoPrograma();
+        //public Task<> FiltrarCabeceraEncuestaAsync();
         public Task<int> CrearEncuestaAsync(EncuestaCreateDTO dto, string usuario);
         public Task EditarEncuestaAsync(EncuestaUpdateDTO dto, string usuario);
         public Task EliminarEncuestaAsync(int id, string usuario);
