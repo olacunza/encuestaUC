@@ -20,6 +20,9 @@ namespace AssesmentUC.Service.DTO.Encuesta
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? PeriodoId { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ProgramaId { get; set; }
         public string NombreTipo { get; set; } = null!;
         
     }

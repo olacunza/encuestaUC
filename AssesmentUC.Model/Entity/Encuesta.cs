@@ -11,7 +11,9 @@ namespace AssesmentUC.Model.Entity
         public int EncuestaId { get; set; }
         public string NombreEncuesta { get; set; } = null!;
         public string DescripcionEncuesta { get; set; } = null!;
-        public int TipoProgramaId { get; set; }
+        public string Modulo { get; set; } = null!;
+        public string Docente { get; set; } = null!;
+        public string TipoProgramaId { get; set; } = null!;
         public string TipoPrograma { get; set; } = null!;
         public int TipoEncuestaId { get; set; }
         public string NombreTipoEncuesta { get; set; } = null!;

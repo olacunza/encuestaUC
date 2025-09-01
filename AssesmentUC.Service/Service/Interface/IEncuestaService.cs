@@ -9,7 +9,7 @@ namespace AssesmentUC.Service.Service.Interface
 {
     public interface IEncuestaService
     {
-        public Task<List<EncuestaListAllDTO>> ListarEncuestas();
+        public Task<List<EncuestaListAllDTO>> ListarEncuestas(int pageNumber, int pageSize);
         public Task<EncuestaDetailDTO> ListarEncuestaId(int id);
         public Task<List<ListaTiposDTO>> ListarTipoEncuesta();
         public Task<List<ListaTiposDTO>> ListarSedes();

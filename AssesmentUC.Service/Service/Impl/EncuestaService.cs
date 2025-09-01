@@ -21,9 +21,9 @@ namespace AssesmentUC.Service.Service.Impl
             _encuestaRepository = encuestaRepository;
         }
 
-        public async Task<List<EncuestaListAllDTO>> ListarEncuestas()
+        public async Task<List<EncuestaListAllDTO>> ListarEncuestas(int pageNumber, int pageSize)
         {
-            var encuestas = await _encuestaRepository.ListarEncuestasRepository();
+            var encuestas = await _encuestaRepository.ListarEncuestasRepository(pageNumber, pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
@@ -47,7 +47,11 @@ namespace AssesmentUC.Service.Service.Impl
             {
                 EncuestaId = encuesta.EncuestaId,
                 NombreEncuesta = encuesta.NombreEncuesta,
+                DescripcionEncuesta = encuesta.DescripcionEncuesta,
+                Modulo = encuesta.Modulo,
+                Docente = encuesta.Docente,
                 TipoPrograma = encuesta.TipoPrograma,
+                TipoEncuestaId = encuesta.TipoEncuestaId,
                 TipoEncuesta = encuesta.NombreTipoEncuesta,
                 Sede = encuesta.Sede,
                 Periodo = encuesta.Periodo,
@@ -139,7 +143,7 @@ namespace AssesmentUC.Service.Service.Impl
             var dtoList = tiposPrograma
                 .Select(e => new ListaTiposDTO
                 {
-                    ListaTipoId = e.TipoProgramaId,
+                    ProgramaId = e.TipoProgramaId,
                     NombreTipo = e.TipoPrograma
                 })
                 .ToList();
@@ -194,7 +198,7 @@ namespace AssesmentUC.Service.Service.Impl
                 EncuestaId = dto.EncuestaId,
                 NombreEncuesta = dto.NombreEncuesta ?? string.Empty,
                 DescripcionEncuesta = dto.DescripcionEncuesta ?? string.Empty,
-                TipoProgramaId = dto.TipoProgramaId ?? 0,
+                TipoProgramaId = dto.TipoProgramaId ?? string.Empty,
                 TipoEncuestaId = dto.TipoEncuestaId ?? 0,
                 SedeId = dto.SedeId ?? string.Empty,
                 Periodo = dto.PeriodoId ?? string.Empty,
@@ -203,6 +207,7 @@ namespace AssesmentUC.Service.Service.Impl
                 FechaFin = dto.FechaFin ?? DateTime.MinValue,
                 Activo = dto.Activo,
                 Estado = true,
+                Completado = dto.Completado,
                 UsuarioModificacion = usuario,
                 FechaModificacion = DateTime.Now,
                 Bloques = dto.Bloques?.Select(b => new EncuestaBloque

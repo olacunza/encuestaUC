@@ -17,9 +17,9 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ListarEncuestas")]
-        public async Task<IActionResult> ListarEncuestasAsync()
+        public async Task<IActionResult> ListarEncuestasAsync(int pageNumber = 1, int pageSize = 10)
         {
-            var encuestas = await _encuestaService.ListarEncuestas();
+            var encuestas = await _encuestaService.ListarEncuestas(pageNumber, pageSize);
             return Ok(encuestas);
         }
 

@@ -9,7 +9,7 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
 {
     public interface IEncuestaRepository
     {
-        public Task<List<Encuesta>> ListarEncuestasRepository();
+        public Task<List<Encuesta>> ListarEncuestasRepository(int pageNumber, int pageSize);
         public Task<Encuesta> ListarEncuestaIdRepository(int id);
         public Task<List<Encuesta>> ListarTipoEncuestaRepository();
         public Task<List<Encuesta>> ListarSedesRepository();

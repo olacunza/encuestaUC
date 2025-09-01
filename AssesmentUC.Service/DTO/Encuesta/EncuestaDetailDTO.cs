@@ -10,7 +10,11 @@ namespace AssesmentUC.Service.DTO.Encuesta
     {
         public int EncuestaId { get; set; }
         public string NombreEncuesta { get; set; } = null!;
+        public string DescripcionEncuesta { get; set; } = null!;    
+        public string Modulo { get; set; } = null!;
+        public string Docente { get; set; } = null!;
         public string TipoPrograma { get; set; } = null!;
+        public int TipoEncuestaId { get; set; }
         public string TipoEncuesta { get; set; } = null!;
         public string Sede { get; set; } = null!;
         public string Periodo { get; set; } = null!;

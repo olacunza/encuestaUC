@@ -23,7 +23,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             _connectionStringBDUCCI = configuration.GetConnectionString("BDUCCI")!;
         }
 
-        public async Task<List<Encuesta>> ListarEncuestasRepository()
+        public async Task<List<Encuesta>> ListarEncuestasRepository(int pageNumber, int pageSize)
         {
             var encuestas = new List<Encuesta>();
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -34,6 +34,8 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ENCUESTAS", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PageNumber", pageNumber);
+                    cmd.Parameters.AddWithValue("@PageSize", pageSize);
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -84,7 +86,10 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             EncuestaId = reader.GetInt32(reader.GetOrdinal("ENCUESTA_ID")),
                             NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
                             DescripcionEncuesta = reader.GetString(reader.GetOrdinal("DESCRIPCION_ENCUESTA")),
+                            Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
+                            Docente = reader.GetString(reader.GetOrdinal("DOCENTE")),
                             TipoPrograma = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA")),
+                            TipoEncuestaId = reader.GetInt32(reader.GetOrdinal("TIPO_ENCUESTA_ID")),
                             NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("TIPO_ENCUESTA")),
                             Sede = reader.GetString(reader.GetOrdinal("SEDE")),
                             Periodo = reader.GetString(reader.GetOrdinal("PERIODO")),
@@ -290,7 +295,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         public async Task<List<Encuesta>> ListarTipoProgramaRepository()
         {
             var encuestas = new List<Encuesta>();
-            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
+            using var connection = new SqlConnection(_connectionStringBDUCCI);
             await connection.OpenAsync();
 
             try
@@ -305,7 +310,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     {
                         var encuesta = new Encuesta
                         {
-                            TipoProgramaId = reader.GetInt32(reader.GetOrdinal("TIPO_PROGRAMA_ID")),
+                            TipoProgramaId = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA_ID")),
                             TipoPrograma = reader.GetString(reader.GetOrdinal("NOMBRE_PROGRAMA"))
                         };
 
@@ -436,6 +441,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     cmd.Parameters.AddWithValue("@FECHA_INICIO", encuesta.FechaInicio);
                     cmd.Parameters.AddWithValue("@FECHA_FIN", encuesta.FechaFin);
                     cmd.Parameters.AddWithValue("@ACTIVO", encuesta.Activo);
+                    cmd.Parameters.AddWithValue("@COMPLETADO", encuesta.Completado);
                     cmd.Parameters.AddWithValue("@USUARIO_MODIFICACION", encuesta.UsuarioModificacion ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@FECHA_MODIFICACION", DateTime.Now);
 
