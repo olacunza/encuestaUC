@@ -3,6 +3,7 @@ using AssesmentUC.Service.Service.Interface;
 using AssesmentUC.Service.DTO.Encuesta;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
+using Azure.Core;
 
 namespace AssesmentUC.Api.Controllers
 {
@@ -154,6 +155,24 @@ namespace AssesmentUC.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = $"Error al generar Excel: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("EnviarCorreo")]
+        public async Task<IActionResult> EnviarCorreoEncuestas(string accessToken, string userEmail, int encuestaId)
+        {
+            try
+            {
+                await _encuestaService.EnviarCorreoEncuestaAsync(accessToken, userEmail, encuestaId);
+                return Ok(new { success = true, message = "Encuesta enviada por correo" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al enviar la encuesta por correo", detalle = ex.Message });
             }
         }
 

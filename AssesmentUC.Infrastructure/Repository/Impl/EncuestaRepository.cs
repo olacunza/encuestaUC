@@ -1,5 +1,6 @@
 ﻿using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
+using Azure.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -596,6 +597,68 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 cmd.Parameters.AddWithValue("@PREGUNTA_ID", id);
                 cmd.Parameters.AddWithValue("@USUARIO_MODIFICACION", usuario);
                 cmd.Parameters.AddWithValue("@FECHA_MODIFICACION", DateTime.Now);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<EnviarCorreoEncuesta> ValoresCorreoEncuestaRepository()
+        {
+            EnviarCorreoEncuesta valoresCorreo = null!;
+            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
+            await connection.OpenAsync();
+
+            try
+            {
+                using (var cmd = new SqlCommand("ENCUESTA.SSP_OBTENER_VALORES_CORREO", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    if (await reader.ReadAsync())
+                    {
+                        valoresCorreo = new EnviarCorreoEncuesta
+                        {
+                            UserEmail = reader.GetString(reader.GetOrdinal("FROM_EMAIL")),
+                            ToEmail = reader.GetString(reader.GetOrdinal("TO_EMAIL")),
+                            NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
+                            Subject = reader.GetString(reader.GetOrdinal("SUBJECT_CORREO")),
+                            Body = reader.GetString(reader.GetOrdinal("BODY_CORREO")),
+                        };
+                    }                    
+                }
+
+                return valoresCorreo;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task ActualizarEncuestaCompletadaRepository(int encuestaId, string userEmail)
+        {
+            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
+            await connection.OpenAsync();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                using var cmd = new SqlCommand("ENCUESTA.ACTUALIZAR_ENCUESTA_ENVIADA", connection, transaction);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
+                cmd.Parameters.AddWithValue("@USUARIO_ACTUALIZA", userEmail);
 
                 await cmd.ExecuteNonQueryAsync();
 
