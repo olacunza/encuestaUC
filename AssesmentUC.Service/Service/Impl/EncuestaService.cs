@@ -10,6 +10,15 @@ using AssesmentUC.Service.DTO.Encuesta;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Drawing;
 using ClosedXML.Excel;
+using Azure.Core;
+using DocumentFormat.OpenXml.Vml;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Services;
+using MimeKit;
+using Google.Apis.Gmail.v1.Data;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace AssesmentUC.Service.Service.Impl
 {
@@ -350,6 +359,41 @@ namespace AssesmentUC.Service.Service.Impl
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             return stream.ToArray();
+        }
+
+        public async Task EnviarCorreoEncuestaAsync(string accessToken, string userEmail, int encuestaId)
+        {
+            EnviarCorreoEncuesta dataCorreo = await _encuestaRepository.ValoresCorreoEncuestaRepository();
+
+            var credential = GoogleCredential.FromAccessToken(accessToken);
+
+            var service = new GmailService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = dataCorreo.NombreEncuesta,
+            });
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(userEmail, userEmail));
+            message.To.Add(new MailboxAddress("", dataCorreo.ToEmail));
+            message.Subject = dataCorreo.Subject;
+            message.Body = new TextPart("plain") { Text = dataCorreo.Body };
+
+            using var ms = new MemoryStream();
+            message.WriteTo(ms);
+            var raw = Convert.ToBase64String(ms.ToArray())
+                .Replace("+", "-").Replace("/", "_").Replace("=", "");
+
+            var gmailMessage = new Message { Raw = raw };
+
+            // "me" = el usuario autenticado con el access_token
+            var result = await service.Users.Messages.Send(gmailMessage, "me").ExecuteAsync();
+
+            if (result != null && !string.IsNullOrEmpty(result.Id))
+            {
+                await _encuestaRepository.ActualizarEncuestaCompletadaRepository(encuestaId, userEmail);
+            }
+
         }
 
     }
