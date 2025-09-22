@@ -17,69 +17,98 @@ namespace AssesmentUC.Api.Controllers
             _encuestaService = encuestaService;
         }
 
-        [HttpGet("ListarEncuestas")]
-        public async Task<IActionResult> ListarEncuestasAsync(int pageNumber = 1, int pageSize = 10)
+        [HttpGet("ListarPlantillasEncuestas")]
+        public async Task<IActionResult> ListarPlantillasEncuestasAsync(int pageNumber = 1, int pageSize = 10)
         {
-            var encuestas = await _encuestaService.ListarEncuestas(pageNumber, pageSize);
+            var encuestas = await _encuestaService.ListarPlantillasEncuestasAsync(pageNumber, pageSize);
             return Ok(encuestas);
         }
 
-        [HttpGet("ListarEncuestaId")]
-        public async Task<IActionResult> ListarEncuestaIdAsync(int id)
+        [HttpGet("ListarPlantillaEncuestaId")]
+        public async Task<IActionResult> ListarPlantillaEncuestaIdAsync(int id)
         {
-            var encuesta = await _encuestaService.ListarEncuestaId(id);
-            return Ok(encuesta);
+            try
+            {
+                var encuesta = await _encuestaService.ListarPlantillaEncuestaIdAsync(id);
+                return Ok(encuesta);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
+            }
         }
 
         [HttpGet("ListarTipoEncuesta")]
         public async Task<IActionResult> ListarTipoEncuestaAsync()
         {
-            var tipoEncuesta = await _encuestaService.ListarTipoEncuesta();
+            var tipoEncuesta = await _encuestaService.ListarTipoEncuestaAsync();
             return Ok(tipoEncuesta);
         }
 
         [HttpGet("ListarSedes")]
         public async Task<IActionResult> ListarSedesAsync()
         {
-            var sedes = await _encuestaService.ListarSedes();
+            var sedes = await _encuestaService.ListarSedesAsync();
             return Ok(sedes);
         }
 
         [HttpGet("ListarPeriodos")]
         public async Task<IActionResult> ListarPeriodosAsync()
         {
-            var periodos = await _encuestaService.ListarPeriodos();
+            var periodos = await _encuestaService.ListarPeriodosAsync();
             return Ok(periodos);
         }
 
         [HttpGet("ListarSecciones")]
         public async Task<IActionResult> ListarSeccionesAsync()
         {
-            var secciones = await _encuestaService.ListarSecciones();
+            var secciones = await _encuestaService.ListarSeccionesAsync();
             return Ok(secciones);
+        }
+
+        [HttpGet("ListarAsignaturas")]
+        public async Task<IActionResult> ListarAsignaturasAsync(string seccion)
+        {
+            var asignaturas = await _encuestaService.ListarAsignaturasAsync(seccion);
+            return Ok(asignaturas);
         }
 
         [HttpGet("ListarTipoPrograma")]
         public async Task<IActionResult> ListarTipoProgramaAsync()
         {
-            var tipoPrograma = await _encuestaService.ListarTipoPrograma();
+            var tipoPrograma = await _encuestaService.ListarTipoProgramaAsync();
             return Ok(tipoPrograma);
         }
 
-        //[HttpGet("FiltrarCabeceraEncuesta")]
-        //public async Task<IActionResult> FiltrarCabeceraEncuestaAsync()
-        //{
-        //    var filtrarCabecera = await _encuestaService.FiltrarCabeceraEncuesta();
-        //    return Ok(filtrarCabecera);
-        //}
-
-        [HttpPost("CrearEncuesta")]
-        public async Task<IActionResult> CrearEncuesta([FromBody] EncuestaCreateDTO dto, string usuario)
+        [HttpPost("CrearEncuestaAsignatura")]
+        public async Task<IActionResult> CrearAsignaturaEncuestaAsync([FromBody] EncuestaAsignaturaCreateDTO dto, string usuario)
         {
             try
             {
-                await _encuestaService.CrearEncuestaAsync(dto, usuario);
-                return Ok(new { success = true, message = "Encuesta creada" });
+                await _encuestaService.CrearAsignaturaEncuestaAsync(dto, usuario);
+                return Ok(new { success = true, message = "Encuesta enviada por asignatura" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new {message = ex.Message});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "ERror interno del servidor", detalle = ex.Message});
+            }
+        }
+
+        [HttpPost("CrearEncuestaPlantilla")]
+        public async Task<IActionResult> CrearPlantillaEncuestaAsync([FromBody] EncuestaPlantillaCreateDTO dto, string usuario)
+        {
+            try
+            {
+                await _encuestaService.CrearPlantillaEncuestaAsync(dto, usuario);
+                return Ok(new { success = true, message = "Plantilla de Encuesta creada" });
             }
             catch (InvalidOperationException ex)
             {
@@ -92,14 +121,14 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpPut("EditarEncuesta/{id}")]
-        public async Task<IActionResult> EditarEncuestaAsync(int id, [FromBody] EncuestaUpdateDTO dto, string usuario)
+        public async Task<IActionResult> EditarEncuestaPlantillaAsync(int id, [FromBody] EncuestaPlantillaUpdateDTO dto, string usuario)
         {
             if ( id != dto.EncuestaId )
                 return BadRequest(new { success = false, message = "El ID enviado no coincide con el DTO" });
 
             try
             {
-                await _encuestaService.EditarEncuestaAsync(dto, usuario);
+                await _encuestaService.EditarEncuestaPlantillaAsync(dto, usuario);
                 return Ok(new { success = true, message = "Encuesta editada correctamente" });
             }
             catch (Exception ex)

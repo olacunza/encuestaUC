@@ -16,6 +16,9 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public string? SeccionId { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? AsignaturaId { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? SedeId { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -23,7 +26,7 @@ namespace AssesmentUC.Service.DTO.Encuesta
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ProgramaId { get; set; }
-        public string NombreTipo { get; set; } = null!;
+        public string? NombreTipo { get; set; }
         
     }
 }

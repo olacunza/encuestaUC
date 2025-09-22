@@ -9,16 +9,17 @@ namespace AssesmentUC.Service.Service.Interface
 {
     public interface IEncuestaService
     {
-        public Task<List<EncuestaListAllDTO>> ListarEncuestas(int pageNumber, int pageSize);
-        public Task<EncuestaDetailDTO> ListarEncuestaId(int id);
-        public Task<List<ListaTiposDTO>> ListarTipoEncuesta();
-        public Task<List<ListaTiposDTO>> ListarSedes();
-        public Task<List<ListaTiposDTO>> ListarPeriodos();
-        public Task<List<ListaTiposDTO>> ListarSecciones();
-        public Task<List<ListaTiposDTO>> ListarTipoPrograma();
-        //public Task<> FiltrarCabeceraEncuestaAsync();
-        public Task<int> CrearEncuestaAsync(EncuestaCreateDTO dto, string usuario);
-        public Task EditarEncuestaAsync(EncuestaUpdateDTO dto, string usuario);
+        public Task<List<EncuestaListAllDTO>> ListarPlantillasEncuestasAsync(int pageNumber, int pageSize);
+        public Task<EncuestaPlantillaDetailDTO> ListarPlantillaEncuestaIdAsync(int id);
+        public Task<List<ListaTiposDTO>> ListarTipoEncuestaAsync();
+        public Task<List<ListaTiposDTO>> ListarSedesAsync();
+        public Task<List<ListaTiposDTO>> ListarPeriodosAsync();
+        public Task<List<ListaTiposDTO>> ListarSeccionesAsync();
+        public Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion);
+        public Task<List<ListaTiposDTO>> ListarTipoProgramaAsync();
+        public Task<int> CrearAsignaturaEncuestaAsync(EncuestaAsignaturaCreateDTO dto, string usuario);
+        public Task<int> CrearPlantillaEncuestaAsync(EncuestaPlantillaCreateDTO dto, string usuario);
+        public Task EditarEncuestaPlantillaAsync(EncuestaPlantillaUpdateDTO dto, string usuario);
         public Task EliminarEncuestaAsync(int id, string usuario);
         public Task EliminarBloqueAsync(int id, string usuario);
         public Task EliminarPreguntaAsync(int id, string usuario);

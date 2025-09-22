@@ -30,45 +30,36 @@ namespace AssesmentUC.Service.Service.Impl
             _encuestaRepository = encuestaRepository;
         }
 
-        public async Task<List<EncuestaListAllDTO>> ListarEncuestas(int pageNumber, int pageSize)
+        public async Task<List<EncuestaListAllDTO>> ListarPlantillasEncuestasAsync(int pageNumber, int pageSize)
         {
-            var encuestas = await _encuestaRepository.ListarEncuestasRepository(pageNumber, pageSize);
+            var encuestas = await _encuestaRepository.ListarPlantillaEncuestasRepository(pageNumber, pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
                 EncuestaId = e.EncuestaId,
                 NombreEncuesta = e.NombreEncuesta,
                 DescripcionEncuesta = e.DescripcionEncuesta,
-                TipoPrograma = e.TipoPrograma,
                 NombreTipoEncuesta = e.NombreTipoEncuesta,
-                FechaCreacion = e.FechaCreacion,
-                Completado = e.Completado
+                FechaCreacion = e.FechaCreacion
             }).ToList();
 
             return dtoList;
         }
 
-        public async Task<EncuestaDetailDTO> ListarEncuestaId(int id)
+        public async Task<EncuestaPlantillaDetailDTO> ListarPlantillaEncuestaIdAsync(int id)
         {
-            var encuesta = await _encuestaRepository.ListarEncuestaIdRepository(id);
+            var encuesta = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(id);
 
-            var dtoEncuesta = new EncuestaDetailDTO
+            if (encuesta == null)
+                throw new InvalidOperationException($"No se encontró la encuesta con ID {id}");
+
+            var dtoEncuesta = new EncuestaPlantillaDetailDTO
             {
                 EncuestaId = encuesta.EncuestaId,
                 NombreEncuesta = encuesta.NombreEncuesta,
                 DescripcionEncuesta = encuesta.DescripcionEncuesta,
-                Modulo = encuesta.Modulo,
-                Docente = encuesta.Docente,
-                TipoPrograma = encuesta.TipoPrograma,
                 TipoEncuestaId = encuesta.TipoEncuestaId,
                 TipoEncuesta = encuesta.NombreTipoEncuesta,
-                Sede = encuesta.Sede,
-                Periodo = encuesta.Periodo,
-                Seccion = encuesta.Seccion,
-                FechaInicio = encuesta.FechaInicio,
-                FechaFin = encuesta.FechaFin,
-                Completado = encuesta.Completado,
-                Activo = encuesta.Activo,
                 FechaCreacion = encuesta.FechaCreacion,
                 Bloques = encuesta.Bloques.Select( b => new BloqueDetailDTO
                 {
@@ -89,7 +80,7 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoEncuesta;
         }
 
-        public async Task<List<ListaTiposDTO>> ListarTipoEncuesta()
+        public async Task<List<ListaTiposDTO>> ListarTipoEncuestaAsync()
         {
             var tiposEncuesta = await _encuestaRepository.ListarTipoEncuestaRepository();
 
@@ -103,7 +94,7 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
-        public async Task<List<ListaTiposDTO>> ListarSedes()
+        public async Task<List<ListaTiposDTO>> ListarSedesAsync()
         {
             var sedes = await _encuestaRepository.ListarSedesRepository();
 
@@ -117,7 +108,7 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
-        public async Task<List<ListaTiposDTO>> ListarPeriodos()
+        public async Task<List<ListaTiposDTO>> ListarPeriodosAsync()
         {
             var periodos = await _encuestaRepository.ListarPeriodosRepository();
 
@@ -131,7 +122,7 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
-        public async Task<List<ListaTiposDTO>> ListarSecciones()
+        public async Task<List<ListaTiposDTO>> ListarSeccionesAsync()
         {
             var secciones = await _encuestaRepository.ListarSeccionesRepository();
 
@@ -145,7 +136,23 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
-        public async Task<List<ListaTiposDTO>> ListarTipoPrograma()
+
+        public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion)
+        {
+            var asignaturas = await _encuestaRepository.ListarAsignaturasRepository(seccion);
+
+            var dtoList = asignaturas
+                .Select(e => new ListaTiposDTO
+                {
+                    AsignaturaId = e.NRC,
+                    NombreTipo = e.NombreAsignatura
+                })
+                .ToList();
+
+            return dtoList;
+        }
+
+        public async Task<List<ListaTiposDTO>> ListarTipoProgramaAsync()
         {
             var tiposPrograma = await _encuestaRepository.ListarTipoProgramaRepository();
 
@@ -160,21 +167,53 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoList;
         }
 
-        public async Task<int> CrearEncuestaAsync(EncuestaCreateDTO dto, string usuario)
+        public async Task<int> CrearAsignaturaEncuestaAsync(EncuestaAsignaturaCreateDTO dto, string usuario)
         {
             var encuesta = new Encuesta
             {
                 NombreEncuesta = dto.NombreEncuesta,
                 DescripcionEncuesta = dto.DescripcionEncuesta,
                 SedeId = dto.SedeId,
-                TipoProgramaId = dto.TipoProgramaId,
                 TipoEncuestaId = dto.TipoEncuestaId,
+                TipoProgramaId = dto.TipoProgramaId,
                 PeriodoId = dto.PeriodoId,
                 SeccionId = dto.SeccionId,
                 FechaInicio = dto.FechaInicio,
                 FechaFin = dto.FechaFin,
                 FechaCreacion = DateTime.Now,
-                Activo = false,
+                Activo = true,
+                UsuarioCreacion = usuario,
+                Bloques = dto.Bloques?.Select(b => new EncuestaBloque
+                {
+                    TituloBloque = b.TituloBloque,
+                    OrdenBloque = b.OrdenBloque,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    FechaCreacion = DateTime.Now,
+                    Preguntas = b.Preguntas?.Select(p => new EncuestaPregunta
+                    {
+                        TextoPregunta = p.TextoPregunta,
+                        TipoPregunta = p.TipoPregunta,
+                        OrdenPregunta = p.OrdenPregunta,
+                        OpcionesJson = p.OpcionesJson,
+                        Estado = true,
+                        FechaCreacion = DateTime.Now,
+                        UsuarioCreacion = usuario,
+                    }).ToList() ?? new List<EncuestaPregunta>()
+                }).ToList() ?? new List<EncuestaBloque>()
+            };
+
+            return await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
+        }
+
+        public async Task<int> CrearPlantillaEncuestaAsync(EncuestaPlantillaCreateDTO dto, string usuario)
+        {
+            var encuesta = new Encuesta
+            {
+                NombreEncuesta = dto.NombreEncuesta,
+                DescripcionEncuesta = dto.DescripcionEncuesta,
+                TipoEncuestaId = dto.TipoEncuestaId,
+                FechaCreacion = DateTime.Now,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 Bloques = dto.Bloques?.Select(b => new EncuestaBloque
@@ -197,26 +236,19 @@ namespace AssesmentUC.Service.Service.Impl
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            return await _encuestaRepository.CrearEncuestaRepository(encuesta);
+            return await _encuestaRepository.CrearPlantillaEncuestaRepository(encuesta);
         }
 
-        public async Task EditarEncuestaAsync(EncuestaUpdateDTO dto, string usuario)
+
+
+        public async Task EditarEncuestaPlantillaAsync(EncuestaPlantillaUpdateDTO dto, string usuario)
         {
             var encuesta = new Encuesta
             {
                 EncuestaId = dto.EncuestaId,
                 NombreEncuesta = dto.NombreEncuesta ?? string.Empty,
                 DescripcionEncuesta = dto.DescripcionEncuesta ?? string.Empty,
-                TipoProgramaId = dto.TipoProgramaId ?? string.Empty,
                 TipoEncuestaId = dto.TipoEncuestaId ?? 0,
-                SedeId = dto.SedeId ?? string.Empty,
-                Periodo = dto.PeriodoId ?? string.Empty,
-                Seccion = dto.Seccion ?? string.Empty,
-                FechaInicio = dto.FechaInicio ?? DateTime.MinValue,
-                FechaFin = dto.FechaFin ?? DateTime.MinValue,
-                Activo = dto.Activo,
-                Estado = true,
-                Completado = dto.Completado,
                 UsuarioModificacion = usuario,
                 FechaModificacion = DateTime.Now,
                 Bloques = dto.Bloques?.Select(b => new EncuestaBloque
@@ -239,7 +271,7 @@ namespace AssesmentUC.Service.Service.Impl
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            await _encuestaRepository.EditarEncuestaRepository(encuesta);
+            await _encuestaRepository.EditarEncuestaPlantillaRepository(encuesta);
         }
 
         public async Task EliminarEncuestaAsync(int id, string usuario)
@@ -259,7 +291,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId)
         {
-            var encuesta = await _encuestaRepository.ListarEncuestaIdRepository(encuestaId);
+            var encuesta = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(encuestaId);
 
             if (encuesta == null)
                 throw new Exception("Encuesta no encontrada");
@@ -389,10 +421,10 @@ namespace AssesmentUC.Service.Service.Impl
             // "me" = el usuario autenticado con el access_token
             var result = await service.Users.Messages.Send(gmailMessage, "me").ExecuteAsync();
 
-            if (result != null && !string.IsNullOrEmpty(result.Id))
-            {
-                await _encuestaRepository.ActualizarEncuestaCompletadaRepository(encuestaId, userEmail);
-            }
+            //if (result != null && !string.IsNullOrEmpty(result.Id))
+            //{
+            //    await _encuestaRepository.ActualizarEncuestaCompletadaRepository(encuestaId, userEmail);
+            //}
 
         }
 

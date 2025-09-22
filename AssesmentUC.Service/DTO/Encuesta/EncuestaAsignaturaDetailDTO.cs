@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AssesmentUC.Service.DTO.Encuesta
 {
-    public class EncuestaDetailDTO
+    public class EncuestaAsignaturaDetailDTO
     {
         public int EncuestaId { get; set; }
         public string NombreEncuesta { get; set; } = null!;
@@ -21,7 +21,6 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public string Seccion { get; set; } = null!;
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
-        public bool Completado { get; set; }
         public bool Activo { get; set; }
         public DateTime FechaCreacion { get; set; }
         public List<BloqueDetailDTO> Bloques { get; set; } = new List<BloqueDetailDTO>();

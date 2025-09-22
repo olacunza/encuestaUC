@@ -23,6 +23,8 @@ namespace AssesmentUC.Model.Entity
         public string Periodo { get; set; } = null!;
         public string SeccionId { get; set; } = null!;
         public string Seccion { get; set; } = null!;
+        public string? NRC { get; set; }
+        public string? NombreAsignatura { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
         public bool Completado { get; set; }

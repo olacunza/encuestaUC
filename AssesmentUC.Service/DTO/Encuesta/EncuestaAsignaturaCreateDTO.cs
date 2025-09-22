@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AssesmentUC.Service.DTO.Encuesta
 {
-    public class EncuestaCreateDTO
+    public class EncuestaAsignaturaCreateDTO
     {
         public string NombreEncuesta { get; set; } = null!;
         public string DescripcionEncuesta { get; set; } = null!;
