@@ -85,11 +85,11 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpPost("CrearEncuestaAsignatura")]
-        public async Task<IActionResult> CrearAsignaturaEncuestaAsync([FromBody] EncuestaAsignaturaCreateDTO dto, string usuario)
+        public async Task<IActionResult> CrearAsignaturaEncuestaAsync([FromBody] CrearEncuestaAsignaturaRequestDTO dto)
         {
             try
             {
-                await _encuestaService.CrearAsignaturaEncuestaAsync(dto, usuario);
+                await _encuestaService.CrearAsignaturaEncuestaAsync(dto);
                 return Ok(new { success = true, message = "Encuesta enviada por asignatura" });
             }
             catch (InvalidOperationException ex)
@@ -187,23 +187,23 @@ namespace AssesmentUC.Api.Controllers
             }
         }
 
-        [HttpPost("EnviarCorreo")]
-        public async Task<IActionResult> EnviarCorreoEncuestas(string accessToken, string userEmail, int encuestaId)
-        {
-            try
-            {
-                await _encuestaService.EnviarCorreoEncuestaAsync(accessToken, userEmail, encuestaId);
-                return Ok(new { success = true, message = "Encuesta enviada por correo" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error al enviar la encuesta por correo", detalle = ex.Message });
-            }
-        }
+        //[HttpPost("EnviarCorreo")]
+        //public async Task<IActionResult> EnviarCorreoEncuestas(string accessToken, string userEmail, int encuestaId)
+        //{
+        //    try
+        //    {
+        //        await _encuestaService.EnviarCorreoEncuestaAsync(accessToken, userEmail, encuestaId);
+        //        return Ok(new { success = true, message = "Encuesta enviada por correo" });
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { mensaje = "Error al enviar la encuesta por correo", detalle = ex.Message });
+        //    }
+        //}
 
 
     }

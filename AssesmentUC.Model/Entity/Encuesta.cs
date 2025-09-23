@@ -34,6 +34,7 @@ namespace AssesmentUC.Model.Entity
         public DateTime? FechaModificacion { get; set; }
         public string UsuarioCreacion { get; set; } = null!;
         public string? UsuarioModificacion { get; set; }
+        public string? UsuarioEmail { get; set; }
         public ICollection<EncuestaBloque> Bloques { get; set; } = new List<EncuestaBloque>();
         
     }

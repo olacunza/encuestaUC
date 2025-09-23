@@ -17,7 +17,7 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<List<ListaTiposDTO>> ListarSeccionesAsync();
         public Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion);
         public Task<List<ListaTiposDTO>> ListarTipoProgramaAsync();
-        public Task<int> CrearAsignaturaEncuestaAsync(EncuestaAsignaturaCreateDTO dto, string usuario);
+        public Task CrearAsignaturaEncuestaAsync(CrearEncuestaAsignaturaRequestDTO dto);
         public Task<int> CrearPlantillaEncuestaAsync(EncuestaPlantillaCreateDTO dto, string usuario);
         public Task EditarEncuestaPlantillaAsync(EncuestaPlantillaUpdateDTO dto, string usuario);
         public Task EliminarEncuestaAsync(int id, string usuario);
@@ -26,6 +26,6 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId);
         public Task<byte[]> GenerarPdfEncuesta(int id);
         public Task<byte[]> GenerarExcelEncuesta(int id);
-        public Task EnviarCorreoEncuestaAsync(string accessToken, string userEmail, int encuestaId);
+        //public Task EnviarCorreoEncuestaAsync(string accessToken, string userEmail, int encuestaId);
     }
 }

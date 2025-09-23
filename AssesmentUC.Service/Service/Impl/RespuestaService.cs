@@ -1,7 +1,13 @@
-﻿using AssesmentUC.Infrastructure.Repository.Interface;
+﻿using AssesmentUC.Infrastructure.Repository.Impl;
+using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
+using AssesmentUC.Service.DTO.Encuesta;
 using AssesmentUC.Service.DTO.Respuesta;
 using AssesmentUC.Service.Service.Interface;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,15 +25,14 @@ namespace AssesmentUC.Service.Service.Impl
             _respuestaRepository = respuestaRepository;
         }
 
-        public async Task<List<RespuestaListAllDTO>> ListarEncuestaRespuestaAsync(string alumnoId)
+        public async Task<List<RespuestaListAllDTO>> ListarEncuestasRespondidasAsync(string alumnoId)
         {
-            var rpta = await _respuestaRepository.ListarEncuestaRespuestaRepository(alumnoId);
+            var rpta = await _respuestaRepository.ListarEncuestasRespondidasRepository(alumnoId);
 
             return rpta.Select(r => new RespuestaListAllDTO
             {
                 EncuestaId = r.EncuestaId,
-                //NombreEncuesta = r.NombreEncuesta ?? "(Encuesta no encontrada)", // CRUZAR CON OTRO SERVICIO PARA TRAER EL NOMBRE DE LA ENCUESTA
-                NombreEncuesta = "nombreDefault",
+                NombreEncuesta = r.Encuesta.NombreEncuesta,
                 FechaRespuesta = r.FechaRespuesta,
                 Completado = r.Completado
             }).ToList();
@@ -50,6 +55,66 @@ namespace AssesmentUC.Service.Service.Impl
             };
 
             await _respuestaRepository.RegistrarRespuestaRepository(respuestaModel);
+
+            await _respuestaRepository.ActualizarEncuestaCompletadaRepository(dto.EncuestaId, dto.AlumnoId);
+        }
+
+        public async Task<DTO.Respuesta.EncuestaAsignaturaDetailDTO> ListarPreguntasEncuestaAsync(int encuestaId)
+        {
+            var encuesta = await _respuestaRepository.ListaPreguntasEncuestaRepository(encuestaId);
+
+            if (encuesta == null)
+                //throw new InvalidOperationException($"No se encontró la encuesta con ID {encuestaId}");
+                return null;
+
+            var dtoEncuesta = new DTO.Respuesta.EncuestaAsignaturaDetailDTO
+            {
+                EncuestaId = encuesta.EncuestaId,
+                NombreEncuesta = encuesta.NombreEncuesta,
+                DescripcionEncuesta = encuesta.DescripcionEncuesta,
+                TipoEncuestaId = encuesta.TipoEncuestaId,
+                TipoEncuesta = encuesta.NombreTipoEncuesta,
+                TipoPrograma = encuesta.TipoPrograma,
+                Sede = encuesta.Sede,
+                Seccion = encuesta.Seccion,
+                Asignatura = encuesta.NombreAsignatura,
+                Modulo = encuesta.Modulo,
+                Docente = encuesta.Docente,
+                FechaInicio = encuesta.FechaInicio,
+                FechaFin = encuesta.FechaFin,
+                Bloques = encuesta.Bloques.Select(b => new BloqueDetailDTO
+                {
+                    BloqueId = b.BloqueId,
+                    TituloBloque = b.TituloBloque,
+                    Orden = b.OrdenBloque,
+                    Preguntas = b.Preguntas.Select(p => new PreguntaDetailDTO
+                    {
+                        PreguntaId = p.EncuestaDetalleId,
+                        TextoPregunta = p.TextoPregunta,
+                        TipoPregunta = p.TipoPregunta,
+                        Orden = p.OrdenPregunta,
+                        OpcionesJson = p.OpcionesJson
+                    }).ToList()
+                }).ToList()
+            };
+
+            return dtoEncuesta;
+        }
+        public async Task<List<EncuestasPendientesDTO>> ListaEncuestaAsignaturaAsync(string alumnoId)
+        {
+            var encuestas = await _respuestaRepository.ListaEncuestaAsignaturaPendienteRepository(alumnoId);
+
+            var dtoList = encuestas.Select(e => new EncuestasPendientesDTO
+            {
+                EncuestaId = e.EncuestaId,
+                NombreEncuesta = e.NombreEncuesta,
+                DescripcionEncuesta = e.DescripcionEncuesta,
+                NombreTipoEncuesta = e.NombreTipoEncuesta,
+                FechaInicio = e.FechaInicio,
+                FechaFin = e.FechaFin
+            }).ToList();
+
+            return dtoList;
         }
 
         public async Task<bool> VerificarSiRespondioAsync(int encuestaId, string alumnoId)

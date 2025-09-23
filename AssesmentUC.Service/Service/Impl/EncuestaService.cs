@@ -167,28 +167,33 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoList;
         }
 
-        public async Task<int> CrearAsignaturaEncuestaAsync(EncuestaAsignaturaCreateDTO dto, string usuario)
+        public async Task CrearAsignaturaEncuestaAsync(CrearEncuestaAsignaturaRequestDTO dto)
         {
+
+            var curso = await _encuestaRepository.ListarDatosAsignaturaRepository(dto.Encuesta.Asignatura);
+
             var encuesta = new Encuesta
             {
-                NombreEncuesta = dto.NombreEncuesta,
-                DescripcionEncuesta = dto.DescripcionEncuesta,
-                SedeId = dto.SedeId,
-                TipoEncuestaId = dto.TipoEncuestaId,
-                TipoProgramaId = dto.TipoProgramaId,
-                PeriodoId = dto.PeriodoId,
-                SeccionId = dto.SeccionId,
-                FechaInicio = dto.FechaInicio,
-                FechaFin = dto.FechaFin,
+                NombreEncuesta = dto.Encuesta.NombreEncuesta,
+                DescripcionEncuesta = dto.Encuesta.DescripcionEncuesta,
+                SedeId = dto.Encuesta.SedeId,
+                TipoEncuestaId = dto.Encuesta.TipoEncuestaId,
+                TipoProgramaId = dto.Encuesta.TipoProgramaId,
+                PeriodoId = dto.Encuesta.PeriodoId,
+                SeccionId = dto.Encuesta.SeccionId,
+                NombreAsignatura = dto.Encuesta.Asignatura,
+                Modulo = curso.Modulo,
+                Docente = curso.Docente,
+                FechaInicio = dto.Encuesta.FechaInicio,
+                FechaFin = dto.Encuesta.FechaFin,
                 FechaCreacion = DateTime.Now,
                 Activo = true,
-                UsuarioCreacion = usuario,
-                Bloques = dto.Bloques?.Select(b => new EncuestaBloque
+                UsuarioCreacion = dto.Usuario,
+                Bloques = dto.Encuesta.Bloques?.Select(b => new EncuestaBloque
                 {
                     TituloBloque = b.TituloBloque,
                     OrdenBloque = b.OrdenBloque,
-                    Estado = true,
-                    UsuarioCreacion = usuario,
+                    UsuarioCreacion = dto.Usuario,
                     FechaCreacion = DateTime.Now,
                     Preguntas = b.Preguntas?.Select(p => new EncuestaPregunta
                     {
@@ -196,14 +201,18 @@ namespace AssesmentUC.Service.Service.Impl
                         TipoPregunta = p.TipoPregunta,
                         OrdenPregunta = p.OrdenPregunta,
                         OpcionesJson = p.OpcionesJson,
-                        Estado = true,
                         FechaCreacion = DateTime.Now,
-                        UsuarioCreacion = usuario,
+                        UsuarioCreacion = dto.Usuario,
                     }).ToList() ?? new List<EncuestaPregunta>()
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            return await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
+            int encuestaId = await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
+            //DESCOMENTAR DESPUES DE PROBAR EL TOKEN GENERADO CON MI CORREO PERSONAL
+            //List<string> alumnos = await EnviarCorreoEncuestaAsync(dto.DatosCorreo);
+
+            //await _encuestaRepository.InsertarEncuestasPorAsignaturaBulkAsync(encuestaId, dto.Usuario, alumnos);
+
         }
 
         public async Task<int> CrearPlantillaEncuestaAsync(EncuestaPlantillaCreateDTO dto, string usuario)
@@ -393,23 +402,27 @@ namespace AssesmentUC.Service.Service.Impl
             return stream.ToArray();
         }
 
-        public async Task EnviarCorreoEncuestaAsync(string accessToken, string userEmail, int encuestaId)
+        public async Task<List<string>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo)
         {
-            EnviarCorreoEncuesta dataCorreo = await _encuestaRepository.ValoresCorreoEncuestaRepository();
+            var correosDestino = await _encuestaRepository.ListarCorreosEncuestaAsignaturaRepository(dtoCorreo.asignatura);
 
-            var credential = GoogleCredential.FromAccessToken(accessToken);
+            string correosConcatenados = string.Join(";", correosDestino.Select(c => c.CorreoAlumno));
+
+            var credential = GoogleCredential.FromAccessToken(dtoCorreo.accessToken);
 
             var service = new GmailService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = dataCorreo.NombreEncuesta,
+                ApplicationName = dtoCorreo.nombreEncuesta,
             });
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(userEmail, userEmail));
-            message.To.Add(new MailboxAddress("", dataCorreo.ToEmail));
-            message.Subject = dataCorreo.Subject;
-            message.Body = new TextPart("plain") { Text = dataCorreo.Body };
+            message.From.Add(new MailboxAddress(dtoCorreo.userEmail, dtoCorreo.userEmail));
+
+            message.To.Add(new MailboxAddress("", correosConcatenados));
+
+            message.Subject = dtoCorreo.motivoCorreo;
+            message.Body = new TextPart("plain") { Text = dtoCorreo.cuerpoCorreo };
 
             using var ms = new MemoryStream();
             message.WriteTo(ms);
@@ -418,15 +431,11 @@ namespace AssesmentUC.Service.Service.Impl
 
             var gmailMessage = new Message { Raw = raw };
 
-            // "me" = el usuario autenticado con el access_token
             var result = await service.Users.Messages.Send(gmailMessage, "me").ExecuteAsync();
 
-            //if (result != null && !string.IsNullOrEmpty(result.Id))
-            //{
-            //    await _encuestaRepository.ActualizarEncuestaCompletadaRepository(encuestaId, userEmail);
-            //}
-
+            return correosDestino.Select(c => c.AlumnoId).ToList();
         }
+
 
     }
 }

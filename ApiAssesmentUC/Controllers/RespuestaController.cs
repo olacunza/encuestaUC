@@ -2,6 +2,7 @@
 using AssesmentUC.Service.DTO.Respuesta;
 using AssesmentUC.Service.Service.Impl;
 using AssesmentUC.Service.Service.Interface;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssesmentUC.Api.Controllers
@@ -17,10 +18,10 @@ namespace AssesmentUC.Api.Controllers
             _respuestaService = respuestaService;
         }
 
-        [HttpGet("ListarRespuestasEncuestas/{alumnoID}")]
-        public async Task<IActionResult> ListarRespuestasEncuestasAsync(string alumnoID)
+        [HttpGet("ListarEncuestasRespondidas/{alumnoID}")]
+        public async Task<IActionResult> ListarEncuestasRespondidasAsync(string alumnoID)
         {
-            var encuesta = await _respuestaService.ListarEncuestaRespuestaAsync(alumnoID);
+            var encuesta = await _respuestaService.ListarEncuestasRespondidasAsync(alumnoID);
             return Ok(encuesta);
         }
 
@@ -50,22 +51,33 @@ namespace AssesmentUC.Api.Controllers
             }
         }
 
-        [HttpGet("VerificarRespuestas/{encuestaId}/{alumnoId}")]
+        [HttpGet("VerificarEncuestaRespondida/{encuestaId}/{alumnoId}")]
         public async Task<IActionResult> VerificarSiRespondioAsync(int encuestaId, string alumnoId)
         {
             bool respondido = await _respuestaService.VerificarSiRespondioAsync(encuestaId, alumnoId);
             return Ok(respondido);
         }
 
-        //[HttpGet("EncuestaPendiente/{id}")]
-        //public async Task<IActionResult> EncuestaPendienteAsync(int id)
-        //{
-        //    var encuesta = await _encuestaService.EncuestaPendienteAsync(id);
-        //    if (encuesta == null)
-        //        return NotFound("Encuesta no encontrada");
+        [HttpGet("ListarPreguntasEncuesta/{encuestaId}")]
+        public async Task<IActionResult> ListarPreguntasEncuestaAsignaturaAsync(int encuestaId)
+        {
+            var encuesta = await _respuestaService.ListarPreguntasEncuestaAsync(encuestaId);
+            if (encuesta == null)
+            {
+                return NotFound(new { message = $"No se encontró ninguna encuesta con el ID {encuestaId}" });
+            }
+            return Ok(encuesta);
+        }
 
-        //    return Ok(encuesta);
-        //}
+        [HttpGet("ListaEncuestasPendientes/{alumnoId}")]
+        public async Task<IActionResult> ListaEncuestaAsignaturaAsync(string alumnoId)
+        {
+            var encuesta = await _respuestaService.ListaEncuestaAsignaturaAsync(alumnoId);
+            if (encuesta == null)
+                return NotFound("No tienes encuestas pendientes");
+
+            return Ok(encuesta);
+        }
 
 
     }

@@ -9,8 +9,11 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
 {
     public interface IRespuestaRepository
     {
-        public Task<List<RespuestaEncuesta>> ListarEncuestaRespuestaRepository(string alumnoId);
+        public Task<List<RespuestaEncuesta>> ListarEncuestasRespondidasRepository(string alumnoId);
         public Task RegistrarRespuestaRepository(RespuestaEncuesta respuestaModel);
+        public Task ActualizarEncuestaCompletadaRepository(int encuestaId, string alumnoId);
+        public Task<Encuesta> ListaPreguntasEncuestaRepository(int encuestaId);
+        public Task<List<Encuesta>> ListaEncuestaAsignaturaPendienteRepository(string alumnoId);
         public Task<bool> VerificarSiRespondioRepository(int encuestaId, string alumnoId);
         public Task<bool> VerificarEncuestaActivaRepository(int encuestaId);
     }

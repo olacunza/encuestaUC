@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using static System.Collections.Specialized.BitVector32;
 
 namespace AssesmentUC.Infrastructure.Repository.Impl
@@ -145,95 +146,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 Console.WriteLine(ex.Message);
                 throw;
             }
-        }
-
-        public async Task<Encuesta> ListarAsignaturaEncuestaIdRepository(int id)
-        {
-            Encuesta encuesta = null!;
-            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
-            await connection.OpenAsync();
-
-            try
-            {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ASIGNATURA_ENCUESTA_ID", connection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@ENCUESTA_ID", id);
-
-                    using var reader = await cmd.ExecuteReaderAsync();
-
-                    if (await reader.ReadAsync())
-                    {
-                        encuesta = new Encuesta
-                        {
-                            EncuestaId = reader.GetInt32(reader.GetOrdinal("ENCUESTA_ID")),
-                            NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
-                            DescripcionEncuesta = reader.GetString(reader.GetOrdinal("DESCRIPCION_ENCUESTA")),
-                            Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
-                            Docente = reader.GetString(reader.GetOrdinal("DOCENTE")),
-                            TipoPrograma = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA")),
-                            TipoEncuestaId = reader.GetInt32(reader.GetOrdinal("TIPO_ENCUESTA_ID")),
-                            NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("TIPO_ENCUESTA")),
-                            Sede = reader.GetString(reader.GetOrdinal("SEDE")),
-                            Periodo = reader.GetString(reader.GetOrdinal("PERIODO")),
-                            Seccion = reader.GetString(reader.GetOrdinal("SECCION")),
-                            FechaInicio = reader.GetDateTime(reader.GetOrdinal("FECHA_INICIO")),
-                            FechaFin = reader.GetDateTime(reader.GetOrdinal("FECHA_FIN")),
-                            Completado = reader.GetBoolean(reader.GetOrdinal("COMPLETADO")),
-                            Activo = reader.GetBoolean(reader.GetOrdinal("ACTIVO")),
-                            FechaCreacion = reader.GetDateTime(reader.GetOrdinal("FECHA_CREACION")),
-                            Bloques = new List<EncuestaBloque>()
-                        };
-                    }
-
-                    if (await reader.NextResultAsync())
-                    {
-                        var bloquesTemp = new List<EncuestaBloque>();
-                        while ( await reader.ReadAsync())
-                        {
-                            bloquesTemp.Add(new EncuestaBloque
-                            {
-                                BloqueId = reader.GetInt32(reader.GetOrdinal("BLOQUE_ID")),
-                                TituloBloque = reader.GetString(reader.GetOrdinal("TITULO_BLOQUE")),
-                                OrdenBloque = reader.GetInt32(reader.GetOrdinal("ORDEN")),
-                                Preguntas = new List<EncuestaPregunta>()
-                            });
-                        }
-
-                        encuesta.Bloques = bloquesTemp;
-
-                    }
-
-                    if ( await reader.NextResultAsync() )
-                    {
-                        while ( await reader.ReadAsync())
-                        {
-                            var bloqueId = reader.GetInt32(reader.GetOrdinal("BLOQUE_ID"));
-                            var bloque = encuesta.Bloques.FirstOrDefault(b => b.BloqueId == bloqueId);
-                            if ( bloque != null )
-                            {
-                                bloque.Preguntas.Add(new EncuestaPregunta
-                                {
-                                    EncuestaDetalleId = reader.GetInt32(reader.GetOrdinal("PREGUNTA_ID")),
-                                    TextoPregunta = reader.GetString(reader.GetOrdinal("TEXTO_PREGUNTA")),
-                                    TipoPregunta = reader.GetString(reader.GetOrdinal("TIPO_PREGUNTA")),
-                                    OrdenPregunta = reader.GetInt32(reader.GetOrdinal("ORDEN")),
-                                    OpcionesJson = reader.IsDBNull(reader.GetOrdinal("OPCIONES_JSON"))? null: reader.GetString(reader.GetOrdinal("OPCIONES_JSON"))
-                                });
-                            }
-                        }
-                    }
-                }
-
-                return encuesta;
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
+        }   
 
         public async Task<List<Encuesta>> ListarTipoEncuestaRepository()
         {
@@ -342,6 +255,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
+        
         public async Task<List<Encuesta>> ListarSeccionesRepository()
         {
             var encuestas = new List<Encuesta>();
@@ -453,6 +367,35 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             }
         }
 
+        public async Task<Encuesta> ListarDatosAsignaturaRepository(string asignatura)
+        {
+            using var connection = new OracleConnection(_connectionStringBANNER);
+            await connection.OpenAsync();
+
+            try
+            {
+                using var cmd = new OracleCommand("SSP_LISTAR_DATOS_ASIGNATURA", connection);
+                cmd.Parameters.Add("p_blck_code", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
+                cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                using var reader = await cmd.ExecuteReaderAsync();
+
+                await reader.ReadAsync();
+
+                return new Encuesta
+                {
+                    Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
+                    Docente = reader.GetString(reader.GetOrdinal("DOCENTE"))
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
         public async Task<int> CrearAsignaturaEncuestaRepository(Encuesta encuesta)
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -472,11 +415,14 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     cmd.Parameters.AddWithValue("@SEDE_ID", encuesta.SedeId);
                     cmd.Parameters.AddWithValue("@PERIODO_ID", encuesta.PeriodoId);
                     cmd.Parameters.AddWithValue("@SECCION_ID", encuesta.SeccionId);
+                    cmd.Parameters.AddWithValue("@ASIGNATURA", encuesta.NombreAsignatura);      //VALIDAR SI ES NOMBREASIGNATURA O NRC
+                    cmd.Parameters.AddWithValue("@MODULO", encuesta.Modulo);
+                    cmd.Parameters.AddWithValue("@DOCENTE", encuesta.Docente);
                     cmd.Parameters.AddWithValue("@FECHA_INICIO", encuesta.FechaInicio);
                     cmd.Parameters.AddWithValue("@FECHA_FIN", encuesta.FechaFin);
                     cmd.Parameters.AddWithValue("@ACTIVO", encuesta.Activo);
-                    cmd.Parameters.AddWithValue("@FECHA_CREACION", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@USUARIO_CREACION", encuesta.UsuarioCreacion);
+                    cmd.Parameters.AddWithValue("@FECHA_ENVIO", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@USUARIO_ENVIO", encuesta.UsuarioCreacion);
 
                     var result = await cmd.ExecuteScalarAsync();
                     if (result == null || result == DBNull.Value)
@@ -490,13 +436,12 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     foreach (var bloque in encuesta.Bloques)
                     {
                         int bloqueId;
-                        using (var cmdBloque = new SqlCommand("ENCUESTA.ISP_CREAR_BLOQUE", connection, transaction))
+                        using (var cmdBloque = new SqlCommand("ENCUESTA.ISP_CREAR_BLOQUE_ASIGNATURA", connection, transaction))
                         {
                             cmdBloque.CommandType = CommandType.StoredProcedure;
                             cmdBloque.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
                             cmdBloque.Parameters.AddWithValue("@TITULO_BLOQUE", bloque.TituloBloque);
                             cmdBloque.Parameters.AddWithValue("@ORDEN", bloque.OrdenBloque);
-                            cmdBloque.Parameters.AddWithValue("@ESTADO", bloque.Estado);
                             cmdBloque.Parameters.AddWithValue("@FECHA_CREACION", DateTime.Now);
                             cmdBloque.Parameters.AddWithValue("@USUARIO_CREACION", encuesta.UsuarioCreacion);
 
@@ -511,7 +456,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                         {
                             foreach (var pregunta in bloque.Preguntas)
                             {
-                                using (var cmdPregunta = new SqlCommand("ENCUESTA.ISP_CREAR_PREGUNTA", connection, transaction))
+                                using (var cmdPregunta = new SqlCommand("ENCUESTA.ISP_CREAR_PREGUNTA_ASIGNATURA", connection, transaction))
                                 {
                                     cmdPregunta.CommandType = CommandType.StoredProcedure;
                                     cmdPregunta.Parameters.AddWithValue("@BLOQUE_ID", bloqueId);
@@ -519,7 +464,6 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                                     cmdPregunta.Parameters.AddWithValue("@TIPO_PREGUNTA", pregunta.TipoPregunta);
                                     cmdPregunta.Parameters.AddWithValue("@ORDEN", pregunta.OrdenPregunta);
                                     cmdPregunta.Parameters.AddWithValue("@OPCIONES_JSON", (object?)pregunta.OpcionesJson ?? DBNull.Value);
-                                    cmdPregunta.Parameters.AddWithValue("@ESTADO", pregunta.Estado);
                                     cmdPregunta.Parameters.AddWithValue("@FECHA_CREACION", DateTime.Now);
                                     cmdPregunta.Parameters.AddWithValue("@USUARIO_CREACION", pregunta.UsuarioCreacion);
 
@@ -541,6 +485,79 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
+
+        public async Task<List<AlumnoCorreo>> ListarCorreosEncuestaAsignaturaRepository(string asignatura)
+        {
+            var lista = new List<AlumnoCorreo>();
+
+            using var connection = new OracleConnection(_connectionStringBANNER);
+            await connection.OpenAsync();
+
+            try
+            {
+                using (var cmd = new OracleCommand("SSP_LISTAR_CORREOS_ENCUESTA", connection))
+                {
+                    cmd.Parameters.Add("p_blck_code", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
+                    cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        var alumno = new AlumnoCorreo
+                        {
+                            AlumnoId = reader.GetString(reader.GetOrdinal("ALUMNO_ID")),
+                            CorreoAlumno = reader.GetString(reader.GetOrdinal("CORREO_USUARIO"))
+                        };
+
+                        lista.Add(alumno);
+                    }
+                }
+
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        public async Task InsertarEncuestasPorAsignaturaBulkAsync(int encuestaId, string usuario, List<string> alumnos)
+        {
+            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
+            await connection.OpenAsync();
+
+            var table = new DataTable();
+            table.Columns.Add("ENCUESTA_ASIGNATURA_ID", typeof(int));
+            table.Columns.Add("ALUMNO_ID", typeof(string));
+            table.Columns.Add("COMPLETADO", typeof(bool));
+            table.Columns.Add("FECHA_CREACION", typeof(DateTime));
+            table.Columns.Add("USUARIO_CREACION", typeof(string));
+
+            foreach (var alumnoId in alumnos)
+            {
+                table.Rows.Add(encuestaId, alumnoId, false, DateTime.Now, usuario);
+            }
+
+            using var bulk = new SqlBulkCopy(connection)
+            {
+                DestinationTableName = "ENCUESTA.ENCUESTA_ASIGNATURA_ALUMNO"
+            };
+
+            bulk.ColumnMappings.Add("ENCUESTA_ASIGNATURA_ID", "ENCUESTA_ASIGNATURA_ID");
+            bulk.ColumnMappings.Add("ALUMNO_ID", "ALUMNO_ID");
+            bulk.ColumnMappings.Add("COMPLETADO", "COMPLETADO");
+            bulk.ColumnMappings.Add("FECHA_CREACION", "FECHA_CREACION");
+            bulk.ColumnMappings.Add("USUARIO_CREACION", "USUARIO_CREACION");
+
+            await bulk.WriteToServerAsync(table);
+        }
+
+
+
         public async Task<int> CrearPlantillaEncuestaRepository(Encuesta encuesta)
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -550,7 +567,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 int encuestaId;
-                using (var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_PLANTILLA_ENCUESTA", connection, transaction))
+                using (var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_ENCUESTA_PLANTILLA", connection, transaction))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@NOMBRE_ENCUESTA", encuesta.NombreEncuesta);
@@ -804,68 +821,5 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
-
-        public async Task<EnviarCorreoEncuesta> ValoresCorreoEncuestaRepository()
-        {
-            EnviarCorreoEncuesta valoresCorreo = null!;
-            using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
-            await connection.OpenAsync();
-
-            try
-            {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_OBTENER_VALORES_CORREO", connection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    using var reader = await cmd.ExecuteReaderAsync();
-
-                    if (await reader.ReadAsync())
-                    {
-                        valoresCorreo = new EnviarCorreoEncuesta
-                        {
-                            UserEmail = reader.GetString(reader.GetOrdinal("FROM_EMAIL")),
-                            ToEmail = reader.GetString(reader.GetOrdinal("TO_EMAIL")),
-                            NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
-                            Subject = reader.GetString(reader.GetOrdinal("SUBJECT_CORREO")),
-                            Body = reader.GetString(reader.GetOrdinal("BODY_CORREO")),
-                        };
-                    }                    
-                }
-
-                return valoresCorreo;
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        //public async Task ActualizarEncuestaCompletadaRepository(int encuestaId, string userEmail)
-        //{
-        //    using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
-        //    await connection.OpenAsync();
-        //    using var transaction = connection.BeginTransaction();
-
-        //    try
-        //    {
-        //        using var cmd = new SqlCommand("ENCUESTA.ACTUALIZAR_ENCUESTA_ENVIADA", connection, transaction);
-        //        cmd.CommandType = CommandType.StoredProcedure;
-        //        cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
-        //        cmd.Parameters.AddWithValue("@USUARIO_ACTUALIZA", userEmail);
-
-        //        await cmd.ExecuteNonQueryAsync();
-
-        //        transaction.Commit();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        transaction.Rollback();
-        //        Console.WriteLine(ex.Message);
-        //        throw;
-        //    }
-        //}
-
     }
 }
