@@ -24,6 +24,13 @@ namespace AssesmentUC.Api.Controllers
             return Ok(encuestas);
         }
 
+        [HttpGet("ListarAsignaturaEncuestas")]
+        public async Task<IActionResult> ListarAsignaturaEncuestasAsync(int pageNumber = 1, int pageSize = 10)
+        {
+            var encuestas = await _encuestaService.ListarAsignaturaEncuestasAsync(pageNumber, pageSize);
+            return Ok(encuestas);
+        }
+
         [HttpGet("ListarPlantillaEncuestaId")]
         public async Task<IActionResult> ListarPlantillaEncuestaIdAsync(int id)
         {
@@ -70,18 +77,32 @@ namespace AssesmentUC.Api.Controllers
             return Ok(secciones);
         }
 
-        [HttpGet("ListarAsignaturas")]
-        public async Task<IActionResult> ListarAsignaturasAsync(string seccion)
+        [HttpGet("ListarTipoPrograma")]
+        public async Task<IActionResult> ListarTipoProgramaAsync(string seccion)
         {
-            var asignaturas = await _encuestaService.ListarAsignaturasAsync(seccion);
+            var tipoPrograma = await _encuestaService.ListarTipoProgramaAsync(seccion);
+            return Ok(tipoPrograma);
+        }
+
+        [HttpGet("ListarAsignaturas")]
+        public async Task<IActionResult> ListarAsignaturasAsync(string seccion, string programa)
+        {
+            var asignaturas = await _encuestaService.ListarAsignaturasAsync(seccion, programa);
             return Ok(asignaturas);
         }
 
-        [HttpGet("ListarTipoPrograma")]
-        public async Task<IActionResult> ListarTipoProgramaAsync()
+        [HttpGet("ListarDocentes")]
+        public async Task<IActionResult> ListarDocentesAsync(string seccion, string asignatura)
         {
-            var tipoPrograma = await _encuestaService.ListarTipoProgramaAsync();
-            return Ok(tipoPrograma);
+            var docentes = await _encuestaService.ListarDocentesAsync(seccion, asignatura);
+            return Ok(docentes);
+        }
+
+        [HttpGet("ListarTipoEncuestado")]
+        public async Task<IActionResult> ListarTipoEncuestadoAsync()
+        {
+            var tipoEncuestado = await _encuestaService.ListarTipoEncuestadoAsync();
+            return Ok(tipoEncuestado);
         }
 
         [HttpPost("CrearEncuestaAsignatura")]
@@ -186,25 +207,6 @@ namespace AssesmentUC.Api.Controllers
                 return BadRequest(new { success = false, message = $"Error al generar Excel: {ex.Message}" });
             }
         }
-
-        //[HttpPost("EnviarCorreo")]
-        //public async Task<IActionResult> EnviarCorreoEncuestas(string accessToken, string userEmail, int encuestaId)
-        //{
-        //    try
-        //    {
-        //        await _encuestaService.EnviarCorreoEncuestaAsync(accessToken, userEmail, encuestaId);
-        //        return Ok(new { success = true, message = "Encuesta enviada por correo" });
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        return BadRequest(new { message = ex.Message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { mensaje = "Error al enviar la encuesta por correo", detalle = ex.Message });
-        //    }
-        //}
-
 
     }
 }

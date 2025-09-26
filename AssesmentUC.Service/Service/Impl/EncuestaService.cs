@@ -1,38 +1,46 @@
 ﻿using AssesmentUC.Service.Service.Interface;
 using AssesmentUC.Infrastructure.Repository.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AssesmentUC.Model.Entity;
 using AssesmentUC.Service.DTO.Encuesta;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Drawing;
 using ClosedXML.Excel;
-using Azure.Core;
-using DocumentFormat.OpenXml.Vml;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1;
-using Google.Apis.Services;
-using MimeKit;
-using Google.Apis.Gmail.v1.Data;
-using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Extensions.Configuration;
+
 
 namespace AssesmentUC.Service.Service.Impl
 {
     public class EncuestaService : IEncuestaService
     {
         private readonly IEncuestaRepository _encuestaRepository;
-        public EncuestaService(IEncuestaRepository encuestaRepository)
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
+        public EncuestaService(IEncuestaRepository encuestaRepository, IEmailService emailService, IConfiguration configuration)
         {
             _encuestaRepository = encuestaRepository;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<List<EncuestaListAllDTO>> ListarPlantillasEncuestasAsync(int pageNumber, int pageSize)
         {
             var encuestas = await _encuestaRepository.ListarPlantillaEncuestasRepository(pageNumber, pageSize);
+
+            var dtoList = encuestas.Select(e => new EncuestaListAllDTO
+            {
+                EncuestaId = e.EncuestaId,
+                NombreEncuesta = e.NombreEncuesta,
+                DescripcionEncuesta = e.DescripcionEncuesta,
+                NombreTipoEncuesta = e.NombreTipoEncuesta,
+                FechaCreacion = e.FechaCreacion
+            }).ToList();
+
+            return dtoList;
+        }
+
+        public async Task<List<EncuestaListAllDTO>> ListarAsignaturaEncuestasAsync(int pageNumber, int pageSize)
+        {
+            var encuestas = await _encuestaRepository.ListarAsignaturaEncuestasRepository(pageNumber, pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
@@ -137,24 +145,39 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoList;
         }
 
-        public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion)
+        public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion, string programa)
         {
-            var asignaturas = await _encuestaRepository.ListarAsignaturasRepository(seccion);
+            var asignaturas = await _encuestaRepository.ListarAsignaturasRepository(seccion, programa);
 
             var dtoList = asignaturas
                 .Select(e => new ListaTiposDTO
                 {
                     AsignaturaId = e.NRC,
-                    NombreTipo = e.NombreAsignatura
+                    NombreTipo = e.Modulo
                 })
                 .ToList();
 
             return dtoList;
         }
 
-        public async Task<List<ListaTiposDTO>> ListarTipoProgramaAsync()
+        public async Task<List<ListaTiposDTO>> ListarDocentesAsync(string seccion, string asignatura)
         {
-            var tiposPrograma = await _encuestaRepository.ListarTipoProgramaRepository();
+            var docentes = await _encuestaRepository.ListarDocentesRepository(seccion, asignatura);
+
+            var dtoList = docentes
+                .Select(e => new ListaTiposDTO
+                {
+                    DocenteId = e.DocenteId,
+                    NombreTipo = e.Docente
+                })
+                .ToList();
+
+            return dtoList;
+        }
+
+        public async Task<List<ListaTiposDTO>> ListarTipoProgramaAsync(string seccion)
+        {
+            var tiposPrograma = await _encuestaRepository.ListarTipoProgramaRepository(seccion);
 
             var dtoList = tiposPrograma
                 .Select(e => new ListaTiposDTO
@@ -166,11 +189,25 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
+        public async Task<List<ListaTiposDTO>> ListarTipoEncuestadoAsync()
+        {
+            var tiposEncuestado = await _encuestaRepository.ListarTipoEncuestadoRepository();
+
+            var dtoList = tiposEncuestado
+                .Select(e => new ListaTiposDTO
+                {
+                    ListaTipoId = e.TipoEncuestadoId,
+                    NombreTipo = e.NombreTipoEncuestado
+                })
+                .ToList();
+
+            return dtoList;
+        }
 
         public async Task CrearAsignaturaEncuestaAsync(CrearEncuestaAsignaturaRequestDTO dto)
         {
 
-            var curso = await _encuestaRepository.ListarDatosAsignaturaRepository(dto.Encuesta.Asignatura);
+            var curso = await _encuestaRepository.ListarModuloAsignaturaRepository(dto.Encuesta.Asignatura);
 
             var encuesta = new Encuesta
             {
@@ -178,12 +215,12 @@ namespace AssesmentUC.Service.Service.Impl
                 DescripcionEncuesta = dto.Encuesta.DescripcionEncuesta,
                 SedeId = dto.Encuesta.SedeId,
                 TipoEncuestaId = dto.Encuesta.TipoEncuestaId,
+                TipoEncuestadoId = dto.Encuesta.TipoEncuestadoId,
                 TipoProgramaId = dto.Encuesta.TipoProgramaId,
                 PeriodoId = dto.Encuesta.PeriodoId,
                 SeccionId = dto.Encuesta.SeccionId,
-                NombreAsignatura = dto.Encuesta.Asignatura,
-                Modulo = curso.Modulo,
-                Docente = curso.Docente,
+                Modulo = dto.Encuesta.Asignatura,
+                Docente = dto.Encuesta.Docente,
                 FechaInicio = dto.Encuesta.FechaInicio,
                 FechaFin = dto.Encuesta.FechaFin,
                 FechaCreacion = DateTime.Now,
@@ -208,10 +245,10 @@ namespace AssesmentUC.Service.Service.Impl
             };
 
             int encuestaId = await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
-            //DESCOMENTAR DESPUES DE PROBAR EL TOKEN GENERADO CON MI CORREO PERSONAL
-            //List<string> alumnos = await EnviarCorreoEncuestaAsync(dto.DatosCorreo);
 
-            //await _encuestaRepository.InsertarEncuestasPorAsignaturaBulkAsync(encuestaId, dto.Usuario, alumnos);
+            List<string> alumnos = await EnviarCorreoEncuestaAsync(dto.DatosCorreo, dto.Encuesta, encuestaId);
+
+            await _encuestaRepository.InsertarEncuestasPorAsignaturaBulkAsync(encuestaId, dto.Usuario, alumnos, dto.Encuesta.TipoEncuestadoId);
 
         }
 
@@ -402,38 +439,68 @@ namespace AssesmentUC.Service.Service.Impl
             return stream.ToArray();
         }
 
-        public async Task<List<string>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo)
+        public async Task<List<string>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo, EncuestaAsignaturaCreateDTO dtoEncuesta, int encuestaId)
         {
-            var correosDestino = await _encuestaRepository.ListarCorreosEncuestaAsignaturaRepository(dtoCorreo.asignatura);
+            List<string> listaDni = new List<string>();
 
-            string correosConcatenados = string.Join(";", correosDestino.Select(c => c.CorreoAlumno));
-
-            var credential = GoogleCredential.FromAccessToken(dtoCorreo.accessToken);
-
-            var service = new GmailService(new BaseClientService.Initializer()
+            switch (dtoEncuesta.TipoEncuestadoId)
             {
-                HttpClientInitializer = credential,
-                ApplicationName = dtoCorreo.nombreEncuesta,
-            });
+                case 1: //alumnos
+                    listaDni = await _encuestaRepository.ListarCorreosEncuestaAsignaturaRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    break;
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(dtoCorreo.userEmail, dtoCorreo.userEmail));
+                case 2: //docentes
+                    var docentes = await _encuestaRepository.ListarDocentesRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    listaDni = docentes
+                        .Select(d => d.DocenteId)
+                        .ToList();
+                    break;
 
-            message.To.Add(new MailboxAddress("", correosConcatenados));
+                case 3: //administrativos --FALTA DEFINIR
+                    listaDni = new List<string>
+                        {
+                            "qqadmin"
+                        };
+                    break;
 
-            message.Subject = dtoCorreo.motivoCorreo;
-            message.Body = new TextPart("plain") { Text = dtoCorreo.cuerpoCorreo };
+                default:
+                    listaDni = new List<string>
+                    {
+                        "qqcorreoError"
+                    };
+                    break;
+            }
 
-            using var ms = new MemoryStream();
-            message.WriteTo(ms);
-            var raw = Convert.ToBase64String(ms.ToArray())
-                .Replace("+", "-").Replace("/", "_").Replace("=", "");
+            var correosDestino = listaDni.Select(id => $"{id}@continental.edu.pe").ToList();
 
-            var gmailMessage = new Message { Raw = raw };
+            string baseUrl = _configuration["Paths:URLEncuestaDev"]!;
+            string linkEncuesta = $"{baseUrl}{encuestaId}";
+            string cuerpo = $"{dtoCorreo.cuerpoCorreo}{Environment.NewLine}{linkEncuesta}";
 
-            var result = await service.Users.Messages.Send(gmailMessage, "me").ExecuteAsync();
+            const int maxDestinatariosPorCorreo = 100;
 
-            return correosDestino.Select(c => c.AlumnoId).ToList();
+            var bloques = correosDestino
+                .Select((correo, index) => new { correo, index })
+                .GroupBy(x => x.index / maxDestinatariosPorCorreo)
+                .Select(g => g.Select(x => x.correo).ToList());
+
+            foreach (var bloque in bloques)
+            {
+                try
+                {
+                    await _emailService.SendEmailAsync(
+                        dtoCorreo.motivoCorreo ?? "Encuesta disponible",
+                        cuerpo,
+                        bloque
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error enviando bloque: {ex.Message}");
+                }
+            }
+
+            return listaDni;
         }
 
 

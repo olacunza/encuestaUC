@@ -77,7 +77,7 @@ namespace AssesmentUC.Service.Service.Impl
                 TipoPrograma = encuesta.TipoPrograma,
                 Sede = encuesta.Sede,
                 Seccion = encuesta.Seccion,
-                Asignatura = encuesta.NombreAsignatura,
+                Asignatura = encuesta.Modulo,
                 Modulo = encuesta.Modulo,
                 Docente = encuesta.Docente,
                 FechaInicio = encuesta.FechaInicio,

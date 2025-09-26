@@ -11,12 +11,14 @@ namespace AssesmentUC.Model.Entity
         public int EncuestaId { get; set; }
         public string NombreEncuesta { get; set; } = null!;
         public string DescripcionEncuesta { get; set; } = null!;
-        public string Modulo { get; set; } = null!;
+        public string DocenteId { get; set; } = null!;
         public string Docente { get; set; } = null!;
         public string TipoProgramaId { get; set; } = null!;
         public string TipoPrograma { get; set; } = null!;
         public int TipoEncuestaId { get; set; }
         public string NombreTipoEncuesta { get; set; } = null!;
+        public int TipoEncuestadoId { get; set; }
+        public string NombreTipoEncuestado { get; set; } = null!;
         public string SedeId { get; set; } = null!;
         public string Sede { get; set; } = null!;
         public string PeriodoId { get; set; } = null!;
@@ -24,7 +26,7 @@ namespace AssesmentUC.Model.Entity
         public string SeccionId { get; set; } = null!;
         public string Seccion { get; set; } = null!;
         public string? NRC { get; set; }
-        public string? NombreAsignatura { get; set; }
+        public string? Modulo { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
         public bool Completado { get; set; }

@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace AssesmentUC.Infrastructure.Repository.Impl
 {
@@ -67,9 +69,15 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             EncuestaId = reader.GetInt32(reader.GetOrdinal("ENCUESTA_ID")),
                             NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
                             DescripcionEncuesta = reader.GetString(reader.GetOrdinal("DESCRIPCION_ENCUESTA")),
-                            TipoEncuestaId = reader.GetInt32(reader.GetOrdinal("TIPO_ENCUESTA_ID")),
-                            NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("TIPO_ENCUESTA")),
-                            FechaCreacion = reader.GetDateTime(reader.GetOrdinal("FECHA_CREACION")),
+                            NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
+                            TipoPrograma = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA")),
+                            Sede = reader.GetString(reader.GetOrdinal("SEDE")),
+                            Periodo = reader.GetString(reader.GetOrdinal("PERIODO")),
+                            Seccion = reader.GetString(reader.GetOrdinal("SECCION")),
+                            Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
+                            Docente = reader.GetString(reader.GetOrdinal("DOCENTE")),
+                            FechaInicio = reader.GetDateTime(reader.GetOrdinal("FECHA_INICIO")),
+                            FechaFin = reader.GetDateTime(reader.GetOrdinal("FECHA_FIN")),
                             Bloques = new List<EncuestaBloque>()
                         };
                     }
