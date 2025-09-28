@@ -29,6 +29,5 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId);
         public Task<byte[]> GenerarPdfEncuesta(int id);
         public Task<byte[]> GenerarExcelEncuesta(int id);
-        //public Task EnviarCorreoEncuestaAsync(string accessToken, string userEmail, int encuestaId);
     }
 }

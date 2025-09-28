@@ -603,9 +603,9 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             }
         }
 
-        public async Task<List<string>> ListarCorreosEncuestaAsignaturaRepository(string seccion, string asignatura)
+        public async Task<List<Encuesta>> ListarAlumnosRepository(string seccion, string asignatura)
         {
-            var lista = new List<string>();
+            var listaAlumnos = new List<Encuesta>();
 
             using var connection = new OracleConnection(_connectionStringBANNER);
             await connection.OpenAsync();
@@ -614,8 +614,8 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 using (var cmd = new OracleCommand("SSP_LISTAR_CORREOS_ENCUESTA", connection))
                 {
-                    cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
-                    cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
+                    cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
+                    cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -623,12 +623,16 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                     while (await reader.ReadAsync())
                     {
-                        string correo = reader.GetString(reader.GetOrdinal("ALUMNO_ID"));
-                        lista.Add(correo);
+                        var alumno = new Encuesta
+                        {
+                            AlumnoId = reader.GetString(reader.GetOrdinal("ALUMNO_ID")),
+                            Alumno = reader.GetString(reader.GetOrdinal("NOMBRE_ALUMNO"))
+                        };
+                        listaAlumnos.Add(alumno);
                     }
                 }
 
-                return lista;
+                return listaAlumnos;
             }
             catch (Exception ex)
             {

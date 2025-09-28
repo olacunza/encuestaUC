@@ -36,8 +36,8 @@ CREATE OR REPLACE PROCEDURE SSP_LISTAR_TIPO_PROGRAMA (
 BEGIN
     OPEN O_CURSOR FOR
         SELECT DISTINCT
-               T5.SMRPRLE_PROGRAM AS TIPO_PROGRAMA_ID,
-               T5.SMRPRLE_DESCRIPTION AS NOMBRE_PROGRAMA
+               COALESCE(T5.SMRPRLE_PROGRAM, 'SIN ID') AS TIPO_PROGRAMA_ID,
+               COALESCE(T5.SMRPRLE_DESCRIPTION, 'SIN NOMBRE') AS NOMBRE_PROGRAMA
         FROM SSRBLCK T1
         INNER JOIN SFRSTCR T2 ON T1.SSRBLCK_TERM_CODE = T2.SFRSTCR_TERM_CODE
            AND T1.SSRBLCK_CRN = T2.SFRSTCR_CRN
@@ -159,22 +159,34 @@ CREATE OR REPLACE PROCEDURE SSP_LISTAR_DOCENTES_ASIGNATURA (
 ) IS
 BEGIN
     OPEN p_cursor FOR
-        SELECT DISTINCT
-               T3.spriden_id AS DNI_DOCENTE,
-               T3.spriden_last_name || ' ' || T3.spriden_first_name AS DOCENTE
+		SELECT DISTINCT
+               T3.spriden_id AS PIDM
+               ,T3.spriden_last_name || ' ' || T3.spriden_first_name AS DOCENTE
+               --,T4.ssrblck_blck_code AS SECCION
+               --,T5.SFRSTCR_CRN  AS ASIGNATURA
+               --,COALESCE(T7.SMRPRLE_PROGRAM, 'SIN ID')       AS TIPO_PROGRAMA_ID
+               --,COALESCE(T7.SMRPRLE_DESCRIPTION, 'SIN NOMBRE') AS NOMBRE_PROGRAMA
         FROM ssbsect T1
-        INNER JOIN sirasgn T2 
-            ON T2.sirasgn_term_code = T1.ssbsect_term_code
+        INNER JOIN sirasgn T2 ON T2.sirasgn_term_code = T1.ssbsect_term_code
            AND T2.sirasgn_crn = T1.ssbsect_crn
-        INNER JOIN spriden T3 
-            ON T3.spriden_pidm = T2.sirasgn_pidm
+        INNER JOIN spriden T3 ON T3.spriden_pidm = T2.sirasgn_pidm
            AND T3.spriden_change_ind IS NULL
-        INNER JOIN ssrblck T4 
-            ON T4.ssrblck_term_code = T1.ssbsect_term_code
+        INNER JOIN ssrblck T4 ON T4.ssrblck_term_code = T1.ssbsect_term_code
            AND T4.ssrblck_crn = T1.ssbsect_crn
+        -- Enlace con inscripción de alumnos
+        INNER JOIN sfrstcr T5 ON T5.sfrstcr_term_code = T1.ssbsect_term_code
+           AND T5.sfrstcr_crn       = T1.ssbsect_crn
+        INNER JOIN sfrensp T6 ON T6.sfrensp_term_code = T5.sfrstcr_term_code
+           AND T6.sfrensp_pidm      = T5.sfrstcr_pidm
+        INNER JOIN sorlcur T8 ON T8.sorlcur_pidm = T6.sfrensp_pidm
+        INNER JOIN smrprle T7 ON T7.smrprle_program = T8.sorlcur_program
         WHERE 1 = 1
-          AND (p_seccion IS NULL OR T1.ssbsect_seq_numb = p_seccion)       -- filtro por sección
-          AND (p_asignatura IS NULL OR T4.ssrblck_blck_code = p_asignatura); -- filtro por asignatura
+        --AND T3.spriden_id = '08709520'
+        --AND T4.ssrblck_blck_code = '21PMADM303'
+        --AND T7.SMRPRLE_PROGRAM = 'MPB'
+        --AND T5.SFRSTCR_CRN = '1860'
+		AND (p_seccion IS NULL OR T4.ssrblck_blck_code = p_seccion)       -- filtro por sección
+        AND (p_asignatura IS NULL OR T5.SFRSTCR_CRN = p_asignatura); -- filtro por asignatura
 END;
 /
 
@@ -222,29 +234,31 @@ BEGIN
     OPEN p_cursor FOR
         SELECT DISTINCT
                T3.spriden_id AS ALUMNO_ID
-               --T3.spriden_id || '@continental.edu.pe' AS CORREO_ALUMNO
-        FROM sfrensp T1
-        INNER JOIN sfrstcr T2 ON T2.sfrstcr_term_code = T1.sfrensp_term_code
-           AND T2.sfrstcr_pidm = T1.sfrensp_pidm
-           AND T2.sfrstcr_stsp_key_sequence = T1.sfrensp_key_seqno
-        INNER JOIN spriden T3 ON T3.spriden_pidm = T1.sfrensp_pidm
+			   ,T3.SPRIDEN_LAST_NAME ||' '|| T3.SPRIDEN_FIRST_NAME AS NOMBRE_ALUMNO
+               --,T3.spriden_id || '@continental.edu.pe' AS CORREO_ALUMNO
+        FROM ssbsect T1
+        INNER JOIN sfrstcr T2 ON T2.sfrstcr_term_code = T1.ssbsect_term_code
+           AND T2.sfrstcr_crn       = T1.ssbsect_crn
+        INNER JOIN sfrensp T6 ON T6.sfrensp_term_code = T2.sfrstcr_term_code
+           AND T6.sfrensp_pidm      = T2.sfrstcr_pidm
+        INNER JOIN spriden T3 ON T3.spriden_pidm = T6.sfrensp_pidm
            AND T3.spriden_change_ind IS NULL
-        INNER JOIN sorlcur T4 ON T4.sorlcur_pidm = T1.sfrensp_pidm
+        INNER JOIN sorlcur T4 ON T4.sorlcur_pidm = T6.sfrensp_pidm
            AND T4.sorlcur_seqno = (
                   SELECT MAX(a.sorlcur_seqno)
                   FROM sorlcur a
-                  WHERE a.sorlcur_pidm = T1.sfrensp_pidm
+                  WHERE a.sorlcur_pidm = T6.sfrensp_pidm
                     AND a.sorlcur_lmod_code = 'LEARNER'
                     AND a.sorlcur_cact_code = 'ACTIVE'
-                    AND a.sorlcur_key_seqno = T1.sfrensp_key_seqno
-                    AND a.sorlcur_term_code <= T1.sfrensp_term_code
+                    AND a.sorlcur_key_seqno = T6.sfrensp_key_seqno
+                    AND a.sorlcur_term_code <= T6.sfrensp_term_code
                )
-        INNER JOIN ssbsect T6 ON T6.ssbsect_term_code = T2.sfrstcr_term_code
-           AND T6.ssbsect_crn = T2.sfrstcr_crn
-        INNER JOIN sgrstsp T5 ON T5.sgrstsp_pidm = T1.sfrensp_pidm
-           AND T5.sgrstsp_key_seqno = T4.sorlcur_key_seqno
-        WHERE T6.ssbsect_subj_code || T6.ssbsect_crse_numb = p_asignatura
-          AND T6.ssbsect_seq_numb = p_seccion;
+        INNER JOIN ssrblck T5 ON T5.ssrblck_term_code = T1.ssbsect_term_code
+           AND T5.ssrblck_crn       = T1.ssbsect_crn
+        INNER JOIN sgrstsp T7 ON T7.sgrstsp_pidm      = T6.sfrensp_pidm
+           AND T7.sgrstsp_key_seqno = T4.sorlcur_key_seqno
+        WHERE (p_asignatura IS NULL OR T2.sfrstcr_crn = p_asignatura)
+          AND (p_seccion IS NULL OR T5.ssrblck_blck_code = p_seccion);
 END;
 /
 

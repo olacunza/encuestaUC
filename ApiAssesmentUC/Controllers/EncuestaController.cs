@@ -119,7 +119,7 @@ namespace AssesmentUC.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { mensaje = "ERror interno del servidor", detalle = ex.Message});
+                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message});
             }
         }
 

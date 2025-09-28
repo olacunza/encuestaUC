@@ -14,7 +14,9 @@ namespace AssesmentUC.Service
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IEncuestaService, EncuestaService>();
-            services.AddScoped<IRespuestaService, RespuestaService>();
+            services.AddScoped<IRespuestaService, RespuestaService>(); 
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<GoogleOAuthService>();
             return services;
         }
     }

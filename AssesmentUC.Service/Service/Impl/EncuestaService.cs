@@ -246,9 +246,13 @@ namespace AssesmentUC.Service.Service.Impl
 
             int encuestaId = await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
 
-            List<string> alumnos = await EnviarCorreoEncuestaAsync(dto.DatosCorreo, dto.Encuesta, encuestaId);
+            List<EncuestadoDNIDTO> listaEncuestados = await EnviarCorreoEncuestaAsync(dto.DatosCorreo, dto.Encuesta, encuestaId);
 
-            await _encuestaRepository.InsertarEncuestasPorAsignaturaBulkAsync(encuestaId, dto.Usuario, alumnos, dto.Encuesta.TipoEncuestadoId);
+            List<string> dniEncuestados = listaEncuestados
+                                            .Select(e => e.EncuestadoId)                            
+                                            .ToList();
+
+            await _encuestaRepository.InsertarEncuestasPorAsignaturaBulkAsync(encuestaId, dto.Usuario, dniEncuestados, dto.Encuesta.TipoEncuestadoId);
 
         }
 
@@ -439,39 +443,51 @@ namespace AssesmentUC.Service.Service.Impl
             return stream.ToArray();
         }
 
-        public async Task<List<string>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo, EncuestaAsignaturaCreateDTO dtoEncuesta, int encuestaId)
+        public async Task<List<EncuestadoDNIDTO>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo, EncuestaAsignaturaCreateDTO dtoEncuesta, int encuestaId)
         {
-            List<string> listaDni = new List<string>();
+            List<EncuestadoDNIDTO> listaEncuestados = new List<EncuestadoDNIDTO>();
 
             switch (dtoEncuesta.TipoEncuestadoId)
             {
                 case 1: //alumnos
-                    listaDni = await _encuestaRepository.ListarCorreosEncuestaAsignaturaRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    var alumnos = await _encuestaRepository.ListarAlumnosRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    listaEncuestados = alumnos.Select(a => new EncuestadoDNIDTO
+                    {
+                        EncuestadoId = a.AlumnoId,
+                        EncuestadoNombre = a.Alumno
+                    }).ToList();
                     break;
 
                 case 2: //docentes
                     var docentes = await _encuestaRepository.ListarDocentesRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
-                    listaDni = docentes
-                        .Select(d => d.DocenteId)
-                        .ToList();
+                    listaEncuestados = docentes.Select(d => new EncuestadoDNIDTO
+                    {
+                        EncuestadoId = d.DocenteId,
+                        EncuestadoNombre = d.Docente
+                    }).ToList();
                     break;
 
                 case 3: //administrativos --FALTA DEFINIR
-                    listaDni = new List<string>
-                        {
-                            "qqadmin"
-                        };
+                    listaEncuestados = new List<EncuestadoDNIDTO>
+                    {
+                        new EncuestadoDNIDTO { EncuestadoId = "qqadmin", EncuestadoNombre = "Administrador" }
+                    };
                     break;
 
                 default:
-                    listaDni = new List<string>
+                    listaEncuestados = new List<EncuestadoDNIDTO>
                     {
-                        "qqcorreoError"
+                        new EncuestadoDNIDTO { EncuestadoId = "qqcorreoError", EncuestadoNombre = "Error" }
                     };
                     break;
             }
 
-            var correosDestino = listaDni.Select(id => $"{id}@continental.edu.pe").ToList();
+            var correosDestino = listaEncuestados.Select(e => $"{e.EncuestadoId}@continental.edu.pe").ToList();
+
+            if (correosDestino == null || !correosDestino.Any())
+            {
+                throw new InvalidOperationException("Encuesta creada pero no se envió a ningún correo (no había destinatarios).");
+            }
 
             string baseUrl = _configuration["Paths:URLEncuestaDev"]!;
             string linkEncuesta = $"{baseUrl}{encuestaId}";
@@ -500,7 +516,7 @@ namespace AssesmentUC.Service.Service.Impl
                 }
             }
 
-            return listaDni;
+            return listaEncuestados;
         }
 
 
