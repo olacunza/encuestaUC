@@ -15,6 +15,7 @@ namespace AssesmentUC.Service
         {
             services.AddScoped<IEncuestaService, EncuestaService>();
             services.AddScoped<IRespuestaService, RespuestaService>(); 
+            services.AddScoped<IReporteService, ReporteService>(); 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<GoogleOAuthService>();
             return services;

@@ -63,6 +63,8 @@ namespace AssesmentUC.Service.Service.Impl
         {
             var encuesta = await _respuestaRepository.ListaPreguntasEncuestaRepository(encuestaId);
 
+            string nombreDocente = await _respuestaRepository.BuscarNombreDocente(encuesta.DocenteId);
+
             if (encuesta == null)
                 //throw new InvalidOperationException($"No se encontró la encuesta con ID {encuestaId}");
                 return null;
@@ -72,14 +74,12 @@ namespace AssesmentUC.Service.Service.Impl
                 EncuestaId = encuesta.EncuestaId,
                 NombreEncuesta = encuesta.NombreEncuesta,
                 DescripcionEncuesta = encuesta.DescripcionEncuesta,
-                TipoEncuestaId = encuesta.TipoEncuestaId,
                 TipoEncuesta = encuesta.NombreTipoEncuesta,
                 TipoPrograma = encuesta.TipoPrograma,
                 Sede = encuesta.Sede,
                 Seccion = encuesta.Seccion,
-                Asignatura = encuesta.Modulo,
                 Modulo = encuesta.Modulo,
-                Docente = encuesta.Docente,
+                Docente = nombreDocente,
                 FechaInicio = encuesta.FechaInicio,
                 FechaFin = encuesta.FechaFin,
                 Bloques = encuesta.Bloques.Select(b => new BloqueDetailDTO

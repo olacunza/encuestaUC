@@ -64,7 +64,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
-        public async Task<List<Encuesta>> ListarAsignaturaEncuestasRepository(int pageNumber, int pageSize)
+        public async Task<List<Encuesta>> ListarAsignaturaEncuestasRepository(Encuesta filtro, int pageNumber, int pageSize)
         {
             var encuestas = new List<Encuesta>();
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -75,8 +75,13 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ASIGNATURA_ENCUESTAS", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@PageNumber", pageNumber);
-                    cmd.Parameters.AddWithValue("@PageSize", pageSize);
+                    cmd.Parameters.AddWithValue("@SECCION", string.IsNullOrEmpty(filtro.Seccion) ? (object)DBNull.Value : filtro.Seccion);
+                    cmd.Parameters.AddWithValue("@MODULO", string.IsNullOrEmpty(filtro.Modulo) ? (object)DBNull.Value : filtro.Modulo);
+                    cmd.Parameters.AddWithValue("@DOCENTE", string.IsNullOrEmpty(filtro.Docente) ? (object)DBNull.Value : filtro.Docente);
+                    cmd.Parameters.AddWithValue("@FECHA_INICIO", filtro.FechaInicio == DateTime.MinValue ? (object)DBNull.Value : filtro.FechaInicio);
+                    cmd.Parameters.AddWithValue("@FECHA_FIN", filtro.FechaFin == DateTime.MinValue ? (object)DBNull.Value : filtro.FechaFin);
+                    cmd.Parameters.AddWithValue("@PAGENUMBER", pageNumber);
+                    cmd.Parameters.AddWithValue("@PAGESIZE", pageSize);
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -369,9 +374,11 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
-        public async Task<List<Encuesta>> ListarAsignaturasRepository(string seccion, string programa)
+        public async Task<List<Encuesta>> ListarAsignaturasRepository(string seccion, string? programa)
         {
             var encuestas = new List<Encuesta>();
+            if (string.IsNullOrEmpty(programa)) programa = "";
+
             using var connection = new OracleConnection(_connectionStringBANNER);
             await connection.OpenAsync();
 
@@ -529,8 +536,8 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     cmd.Parameters.AddWithValue("@DESCRIPCION_ENCUESTA", encuesta.DescripcionEncuesta);
                     cmd.Parameters.AddWithValue("@TIPO_ENCUESTA_ID", encuesta.TipoEncuestaId);
                     cmd.Parameters.AddWithValue("@TIPO_ENCUESTADO_ID", encuesta.TipoEncuestadoId);
-                    cmd.Parameters.AddWithValue("@TIPO_PROGRAMA_ID", encuesta.TipoProgramaId);
-                    cmd.Parameters.AddWithValue("@SEDE_ID", encuesta.SedeId);
+                    cmd.Parameters.AddWithValue("@TIPO_PROGRAMA", encuesta.TipoPrograma);
+                    cmd.Parameters.AddWithValue("@SEDE", encuesta.Sede);
                     cmd.Parameters.AddWithValue("@PERIODO_ID", encuesta.PeriodoId);
                     cmd.Parameters.AddWithValue("@SECCION_ID", encuesta.SeccionId);
                     cmd.Parameters.AddWithValue("@MODULO", encuesta.Modulo);

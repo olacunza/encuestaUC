@@ -25,9 +25,9 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ListarAsignaturaEncuestas")]
-        public async Task<IActionResult> ListarAsignaturaEncuestasAsync(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> ListarAsignaturaEncuestasAsync([FromQuery] EncuestaAsignaturaFiltroDTO dto)
         {
-            var encuestas = await _encuestaService.ListarAsignaturaEncuestasAsync(pageNumber, pageSize);
+            var encuestas = await _encuestaService.ListarAsignaturaEncuestasAsync(dto);
             return Ok(encuestas);
         }
 
@@ -85,7 +85,7 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ListarAsignaturas")]
-        public async Task<IActionResult> ListarAsignaturasAsync(string seccion, string programa)
+        public async Task<IActionResult> ListarAsignaturasAsync(string seccion, string? programa = "")
         {
             var asignaturas = await _encuestaService.ListarAsignaturasAsync(seccion, programa);
             return Ok(asignaturas);
@@ -179,34 +179,5 @@ namespace AssesmentUC.Api.Controllers
             await _encuestaService.EliminarPreguntaAsync(id, usuario);
             return Ok(new { success = true, message = "Pregunta eliminada" });
         }
-
-        [HttpGet("GenerarPdfEncuesta/{id}")]
-        public async Task<IActionResult> GenerarPdfEncuesta(int id)
-        {
-            try
-            {
-                var pdfBytes = await _encuestaService.GenerarPdfEncuesta(id);
-                return File(pdfBytes, "application/pdf", $"encuesta_{id}_{DateTime.Now}.pdf");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = $"Error al generar PDF: {ex.Message}" });
-            }
-        }
-
-        [HttpGet("GenerarExcelEncuesta/{id}")]
-        public async Task<IActionResult> GenerarExcelEncuesta(int id)
-        {
-            try
-            {
-                var excelBytes = await _encuestaService.GenerarExcelEncuesta(id);
-                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"encuesta_{id}_{DateTime.Now}.xlsx");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = $"Error al generar Excel: {ex.Message}" });
-            }
-        }
-
     }
 }

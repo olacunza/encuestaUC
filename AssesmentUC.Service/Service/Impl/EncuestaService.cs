@@ -6,6 +6,7 @@ using PdfSharpCore.Pdf;
 using PdfSharpCore.Drawing;
 using ClosedXML.Excel;
 using Microsoft.Extensions.Configuration;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 
 namespace AssesmentUC.Service.Service.Impl
@@ -38,9 +39,18 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoList;
         }
 
-        public async Task<List<EncuestaListAllDTO>> ListarAsignaturaEncuestasAsync(int pageNumber, int pageSize)
+        public async Task<List<EncuestaListAllDTO>> ListarAsignaturaEncuestasAsync(EncuestaAsignaturaFiltroDTO dto)
         {
-            var encuestas = await _encuestaRepository.ListarAsignaturaEncuestasRepository(pageNumber, pageSize);
+            var filtroEncuestaAsignatura = new Encuesta
+            {
+                Seccion = dto.Seccion,
+                Modulo = dto.Modulo,
+                Docente = dto.Docente,
+                FechaInicio = dto.FechaInicio,
+                FechaFin = dto.FechaFin
+            };
+
+            var encuestas = await _encuestaRepository.ListarAsignaturaEncuestasRepository(filtroEncuestaAsignatura, dto.pageNumber, dto.pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
@@ -48,6 +58,11 @@ namespace AssesmentUC.Service.Service.Impl
                 NombreEncuesta = e.NombreEncuesta,
                 DescripcionEncuesta = e.DescripcionEncuesta,
                 NombreTipoEncuesta = e.NombreTipoEncuesta,
+                Sede = e.Sede,
+                Periodo = e.Periodo,
+                Programa = e.TipoPrograma,
+                Seccion = e.Seccion,
+                Modulo = e.Modulo,
                 FechaCreacion = e.FechaCreacion
             }).ToList();
 
@@ -69,12 +84,12 @@ namespace AssesmentUC.Service.Service.Impl
                 TipoEncuestaId = encuesta.TipoEncuestaId,
                 TipoEncuesta = encuesta.NombreTipoEncuesta,
                 FechaCreacion = encuesta.FechaCreacion,
-                Bloques = encuesta.Bloques.Select( b => new BloqueDetailDTO
+                Bloques = encuesta.Bloques.Select(b => new BloqueDetailDTO
                 {
                     BloqueId = b.BloqueId,
                     TituloBloque = b.TituloBloque,
                     Orden = b.OrdenBloque,
-                    Preguntas = b.Preguntas.Select( p => new PreguntaDetailDTO
+                    Preguntas = b.Preguntas.Select(p => new PreguntaDetailDTO
                     {
                         PreguntaId = p.EncuestaDetalleId,
                         TextoPregunta = p.TextoPregunta,
@@ -145,7 +160,7 @@ namespace AssesmentUC.Service.Service.Impl
             return dtoList;
         }
 
-        public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion, string programa)
+        public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion, string? programa)
         {
             var asignaturas = await _encuestaRepository.ListarAsignaturasRepository(seccion, programa);
 
@@ -206,27 +221,28 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task CrearAsignaturaEncuestaAsync(CrearEncuestaAsignaturaRequestDTO dto)
         {
+            int encuestaPlantillaId = dto.Encuesta.EncuestaId;
 
-            var curso = await _encuestaRepository.ListarModuloAsignaturaRepository(dto.Encuesta.Asignatura);
+            var encuestaPlantilla = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(encuestaPlantillaId);
 
             var encuesta = new Encuesta
             {
-                NombreEncuesta = dto.Encuesta.NombreEncuesta,
-                DescripcionEncuesta = dto.Encuesta.DescripcionEncuesta,
-                SedeId = dto.Encuesta.SedeId,
-                TipoEncuestaId = dto.Encuesta.TipoEncuestaId,
+                NombreEncuesta = encuestaPlantilla.NombreEncuesta,
+                DescripcionEncuesta = encuestaPlantilla.DescripcionEncuesta,
+                Sede = dto.Encuesta.Sede,
+                TipoEncuestaId = encuestaPlantilla.TipoEncuestaId,
                 TipoEncuestadoId = dto.Encuesta.TipoEncuestadoId,
-                TipoProgramaId = dto.Encuesta.TipoProgramaId,
+                TipoPrograma = dto.Encuesta.TipoPrograma,
                 PeriodoId = dto.Encuesta.PeriodoId,
                 SeccionId = dto.Encuesta.SeccionId,
-                Modulo = dto.Encuesta.Asignatura,
+                Modulo = dto.Encuesta.AsignaturaNombre,
                 Docente = dto.Encuesta.Docente,
                 FechaInicio = dto.Encuesta.FechaInicio,
                 FechaFin = dto.Encuesta.FechaFin,
                 FechaCreacion = DateTime.Now,
                 Activo = true,
                 UsuarioCreacion = dto.Usuario,
-                Bloques = dto.Encuesta.Bloques?.Select(b => new EncuestaBloque
+                Bloques = encuestaPlantilla.Bloques?.Select(b => new EncuestaBloque
                 {
                     TituloBloque = b.TituloBloque,
                     OrdenBloque = b.OrdenBloque,
@@ -339,110 +355,6 @@ namespace AssesmentUC.Service.Service.Impl
             await _encuestaRepository.EliminarPreguntaRepository(id, usuario);
         }
 
-        public async Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId)
-        {
-            var encuesta = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(encuestaId);
-
-            if (encuesta == null)
-                throw new Exception("Encuesta no encontrada");
-
-            var dto = new EncuestaExportarPdfDTO
-            {
-                NombreEncuesta = encuesta.NombreEncuesta,
-                DescripcionEncuesta = encuesta.DescripcionEncuesta,
-                Periodo = encuesta.Periodo,
-                Seccion = encuesta.Seccion,
-                FechaInicio = encuesta.FechaInicio,
-                FechaFin = encuesta.FechaFin,
-                Bloques = encuesta.Bloques.Select(b => new BloqueExportPdfDTO
-                {
-                    TituloBloque = b.TituloBloque,
-                    Orden = b.OrdenBloque,
-                    Preguntas = b.Preguntas.Select(p => new PreguntaExportPdfDTO
-                    {
-                        TextoPregunta = p.TextoPregunta,
-                        TipoPregunta = p.TipoPregunta,
-                        Orden = p.OrdenPregunta
-                    }).ToList()
-                }).ToList()
-            };
-
-            return dto;
-        }
-
-        public async Task<byte[]> GenerarPdfEncuesta(int encuestaId)
-        {
-            var dto = await ObtenerEncuestaParaExportar(encuestaId);
-
-            using var stream = new MemoryStream();
-            var document = new PdfDocument();
-            var page = document.AddPage();
-            var gfx = XGraphics.FromPdfPage(page);
-            var font = new XFont("Arial", 12, XFontStyle.Regular);
-
-            int y = 40;
-            gfx.DrawString($"Encuesta: {dto.NombreEncuesta}", font, XBrushes.Black, new XPoint(40, y));
-            y += 25;
-            gfx.DrawString($"Periodo: {dto.Periodo}  Sección: {dto.Seccion}", font, XBrushes.Black, new XPoint(40, y));
-            y += 25;
-
-            foreach (var bloque in dto.Bloques.OrderBy(b => b.Orden))
-            {
-                gfx.DrawString($"Bloque: {bloque.TituloBloque}", font, XBrushes.DarkBlue, new XPoint(40, y));
-                y += 20;
-
-                foreach (var pregunta in bloque.Preguntas.OrderBy(p => p.Orden))
-                {
-                    gfx.DrawString($"• {pregunta.TextoPregunta} ({pregunta.TipoPregunta})", font, XBrushes.Black, new XPoint(60, y));
-                    y += 18;
-                }
-
-                y += 10;
-            }
-
-            document.Save(stream, false);
-            return stream.ToArray();
-        }
-
-        public async Task<byte[]> GenerarExcelEncuesta(int encuestaId)
-        {
-            var dto = await ObtenerEncuestaParaExportar(encuestaId);
-
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Encuesta");
-
-            int row = 1;
-
-            worksheet.Cell(row++, 1).Value = $"Nombre de Encuesta: {dto.NombreEncuesta}";
-            worksheet.Cell(row++, 1).Value = $"Periodo: {dto.Periodo ?? "-"}";
-            worksheet.Cell(row++, 1).Value = $"Sección: {dto.Seccion ?? "-"}";
-            row++;
-
-            foreach (var bloque in dto.Bloques.OrderBy(b => b.Orden))
-            {
-                worksheet.Cell(row++, 1).Value = $"Bloque: {bloque.TituloBloque}";
-
-                worksheet.Cell(row, 1).Value = "N°";
-                worksheet.Cell(row, 2).Value = "Texto de la Pregunta";
-                worksheet.Cell(row, 3).Value = "Tipo";
-                row++;
-
-                foreach (var pregunta in bloque.Preguntas.OrderBy(p => p.Orden))
-                {
-                    worksheet.Cell(row, 1).Value = pregunta.Orden;
-                    worksheet.Cell(row, 2).Value = pregunta.TextoPregunta;
-                    worksheet.Cell(row, 3).Value = pregunta.TipoPregunta;
-                    row++;
-                }
-
-                row++;
-            }
-
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-            return stream.ToArray();
-        }
-
         public async Task<List<EncuestadoDNIDTO>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo, EncuestaAsignaturaCreateDTO dtoEncuesta, int encuestaId)
         {
             List<EncuestadoDNIDTO> listaEncuestados = new List<EncuestadoDNIDTO>();
@@ -491,7 +403,7 @@ namespace AssesmentUC.Service.Service.Impl
 
             string baseUrl = _configuration["Paths:URLEncuestaDev"]!;
             string linkEncuesta = $"{baseUrl}{encuestaId}";
-            string cuerpo = $"{dtoCorreo.cuerpoCorreo}{Environment.NewLine}{linkEncuesta}";
+            string cuerpo = $"{dtoCorreo.CuerpoCorreo}{Environment.NewLine}{linkEncuesta}";
 
             const int maxDestinatariosPorCorreo = 100;
 
@@ -505,7 +417,7 @@ namespace AssesmentUC.Service.Service.Impl
                 try
                 {
                     await _emailService.SendEmailAsync(
-                        dtoCorreo.motivoCorreo ?? "Encuesta disponible",
+                        dtoCorreo.MotivoCorreo ?? "Encuesta disponible",
                         cuerpo,
                         bloque
                     );

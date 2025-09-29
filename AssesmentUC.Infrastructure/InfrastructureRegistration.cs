@@ -12,6 +12,7 @@ namespace AssesmentUC.Infrastructure
 
             services.AddScoped<IEncuestaRepository, EncuestaRepository>();
             services.AddScoped<IRespuestaRepository, RespuestaRepository>();
+            services.AddScoped<IReporteRepository, ReporteRepository>();
 
             return services;
         }

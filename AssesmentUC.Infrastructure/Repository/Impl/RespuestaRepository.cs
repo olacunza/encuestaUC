@@ -2,6 +2,7 @@
 using AssesmentUC.Model.Entity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,10 +17,12 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
     public class RespuestaRepository : IRespuestaRepository
     {
         public readonly string _connectionStringBDPRACTICAS;
+        public readonly string _connectionStringBANNER;
 
         public RespuestaRepository(IConfiguration configuration)
         {
             _connectionStringBDPRACTICAS = configuration.GetConnectionString("BDPRACTICAS")!;
+            _connectionStringBANNER = configuration.GetConnectionString("BANNER")!;
         }
 
         public async Task<List<RespuestaEncuesta>> ListarEncuestasRespondidasRepository(string alumnoId)
@@ -69,13 +72,13 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             EncuestaId = reader.GetInt32(reader.GetOrdinal("ENCUESTA_ID")),
                             NombreEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
                             DescripcionEncuesta = reader.GetString(reader.GetOrdinal("DESCRIPCION_ENCUESTA")),
-                            NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("NOMBRE_ENCUESTA")),
+                            NombreTipoEncuesta = reader.GetString(reader.GetOrdinal("TIPO_ENCUESTA")),
                             TipoPrograma = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA")),
                             Sede = reader.GetString(reader.GetOrdinal("SEDE")),
                             Periodo = reader.GetString(reader.GetOrdinal("PERIODO")),
                             Seccion = reader.GetString(reader.GetOrdinal("SECCION")),
                             Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
-                            Docente = reader.GetString(reader.GetOrdinal("DOCENTE")),
+                            DocenteId = reader.GetString(reader.GetOrdinal("DOCENTE")),
                             FechaInicio = reader.GetDateTime(reader.GetOrdinal("FECHA_INICIO")),
                             FechaFin = reader.GetDateTime(reader.GetOrdinal("FECHA_FIN")),
                             Bloques = new List<EncuestaBloque>()
@@ -136,6 +139,30 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 throw;
             }
         }
+
+        public async Task<string?> BuscarNombreDocente(string dniDocente)
+        {
+            using var connection = new OracleConnection(_connectionStringBANNER);
+            using var command = new OracleCommand("SSP_NOMBRE_DOCENTE_DNI", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2).Value = dniDocente;
+
+            var cursor = command.Parameters.Add("O_CURSOR", OracleDbType.RefCursor);
+            cursor.Direction = ParameterDirection.Output;
+
+            await connection.OpenAsync();
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+            {
+                return reader["DOCENTE"]?.ToString();
+            }
+
+            return "Sin nombre Docente";
+        }
+
 
         public async Task<List<Encuesta>> ListaEncuestaAsignaturaPendienteRepository(string alumnoId)
         {

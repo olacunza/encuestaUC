@@ -147,7 +147,9 @@ BEGIN
            AND T2.SFRSTCR_PIDM = T5.SFRENSP_PIDM
         INNER JOIN SORLCUR T6 ON T6.SORLCUR_PIDM = T5.SFRENSP_PIDM
         INNER JOIN SMRPRLE T7 ON T7.SMRPRLE_PROGRAM = T6.SORLCUR_PROGRAM
-        WHERE T7.SMRPRLE_PROGRAM = p_program_id;
+        WHERE p_program_id IS NULL 
+              OR p_program_id = '' 
+              OR T7.SMRPRLE_PROGRAM = p_program_id;
 END;
 /
 
@@ -259,6 +261,23 @@ BEGIN
            AND T7.sgrstsp_key_seqno = T4.sorlcur_key_seqno
         WHERE (p_asignatura IS NULL OR T2.sfrstcr_crn = p_asignatura)
           AND (p_seccion IS NULL OR T5.ssrblck_blck_code = p_seccion);
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE SSP_NOMBRE_DOCENTE_DNI (
+    P_BLCK_CODE IN VARCHAR2,
+    O_CURSOR    OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN O_CURSOR FOR
+        SELECT DISTINCT 
+               TRIM(
+                   COALESCE(spriden_last_name, '') || ' ' ||
+                   COALESCE(spriden_first_name, '')
+               ) AS DOCENTE
+        FROM spriden
+        WHERE spriden_id = P_BLCK_CODE;
 END;
 /
 
