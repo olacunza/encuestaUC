@@ -17,6 +17,8 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public string NRC { get; set; } = null!;
         public string AsignaturaNombre { get; set; } = null!;
         public string Docente { get; set; } = null!;
+        public string AsesorId { get; set; } = string.Empty;
+        public string Asesor { get; set; } = string.Empty;
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }

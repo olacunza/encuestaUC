@@ -1,20 +1,16 @@
-using AssesmentUC.Service;
+﻿using AssesmentUC.Service;
 using AssesmentUC.Infrastructure;
 using AssesmentUC.Model.Entity;
-using AssesmentUC.Service.Service.Impl;
-using AssesmentUC.Service.Service.Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -29,33 +25,30 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configurar autenticación JWT (Google SSO)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://accounts.google.com";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://accounts.google.com",
+            ValidateAudience = true,
+            ValidAudience = "TU_CLIENT_ID.apps.googleusercontent.com", // <-- client_id real de la app Angular registrada en Gooogle
+            //Este client_id lo encuentras en la consola de Google Cloud → OAuth 2.0 Client IDs → columna “Client ID”.
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
-
-//var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-//var secretKey = jwtSettings["SecretKey"];
-
-//builder.Services.AddAuthentication("Bearer")
-//    .AddJwtBearer("Bearer", options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidIssuer = jwtSettings["Issuer"],
-//            ValidateAudience = true,
-//            ValidAudience = jwtSettings["Audience"],
-//            ValidateLifetime = true,
-//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-//            ValidateIssuerSigningKey = true
-//        };
-//    });
-
-//builder.Services.AddAuthorization();
-
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 
@@ -63,6 +56,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Encuesta Área Académica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            font-size: 12pt;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 18pt;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+            .header div {
+                margin: 4px 0;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #efefef;
+        }
+
+        .resumen, .final {
+            margin-top: 20px;
+        }
+
+            .resumen strong, .final strong {
+                font-size: 12pt;
+            }
+
+        .comentarios {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ENCUESTA ÁREA ACADÉMICA HACIA EL DOCENTE</h1>
+
+    <div class="header">
+        <div><strong>Programa:</strong> {{Programa}}</div>
+        <div><strong>Sección:</strong> {{Seccion}}</div>
+        <div><strong>NRC - Curso:</strong> {{Curso}}</div>
+        <div><strong>Docente:</strong> {{Docente}}</div>
+    </div>
+
+    <p>1 Muy Malo | 2 Malo | 3 Aceptable | 4 Bueno | 5 Muy Bueno</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nro</th>
+                <th>Evaluación del Área Académica</th>
+                <th>Evaluación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each Preguntas}}
+            <tr>
+                <td>{{Nro}}</td>
+                <td>{{TextoPregunta}}</td>
+                <td style="text-align:center;">{{Promedio}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <div class="resumen">
+        <strong>PROMEDIO ENCUESTA ÁREA ACADÉMICA AL DOCENTE:</strong> {{PromedioArea}}
+    </div>
+
+    <div class="final">
+        <p><strong>Promedio Encuesta Estudiantes al Docente (75%)</strong> {{PromedioEstudiantes}}</p>
+        <p><strong>Promedio Encuesta del Área Académica al Docente (15%)</strong> {{PromedioArea}}</p>
+        <p><strong>Evaluación del Cumplimiento Modelo Académico (10%)</strong> {{ModeloAcademico}}</p>
+        <p><strong>EVALUACIÓN FINAL DEL DOCENTE:</strong> {{EvaluacionFinal}}</p>
+    </div>
+
+    <div class="comentarios">
+        <strong>COMENTARIOS:</strong>
+        <p>{{Comentarios}}</p>
+        <br>
+        <strong>Gestión Académica</strong>
+    </div>
+
+</body>
+</html>

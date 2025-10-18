@@ -18,6 +18,7 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<List<ListaTiposDTO>> ListarSeccionesAsync();
         public Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion, string? programa);
         public Task<List<ListaTiposDTO>> ListarDocentesAsync(string seccion, string asignatura);
+        public Task<List<ListaTiposDTO>> ListarAsesoresAsync(string seccion);
         public Task<List<ListaTiposDTO>> ListarTipoProgramaAsync(string seccion);
         public Task<List<ListaTiposDTO>> ListarTipoEncuestadoAsync();
         public Task CrearAsignaturaEncuestaAsync(CrearEncuestaAsignaturaRequestDTO dto);

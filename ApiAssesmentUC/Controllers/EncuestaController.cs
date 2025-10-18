@@ -4,9 +4,11 @@ using AssesmentUC.Service.DTO.Encuesta;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AssesmentUC.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/")]
     public class EncuestaController : ControllerBase
@@ -96,6 +98,13 @@ namespace AssesmentUC.Api.Controllers
         {
             var docentes = await _encuestaService.ListarDocentesAsync(seccion, asignatura);
             return Ok(docentes);
+        }
+
+        [HttpGet("ListarAsesores")]
+        public async Task<IActionResult> ListarAsesoresAsync(string seccion)
+        {
+            var asesores = await _encuestaService.ListarAsesoresAsync(seccion);
+            return Ok(asesores);
         }
 
         [HttpGet("ListarTipoEncuestado")]

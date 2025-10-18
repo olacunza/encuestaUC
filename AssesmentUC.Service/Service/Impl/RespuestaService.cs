@@ -59,9 +59,9 @@ namespace AssesmentUC.Service.Service.Impl
             await _respuestaRepository.ActualizarEncuestaCompletadaRepository(dto.EncuestaId, dto.AlumnoId);
         }
 
-        public async Task<DTO.Respuesta.EncuestaAsignaturaDetailDTO> ListarPreguntasEncuestaAsync(int encuestaId)
+        public async Task<DTO.Respuesta.EncuestaAsignaturaDetailDTO> ListarPreguntasEncuestaAsync(int encuestaId, string encuestadoDNI)
         {
-            var encuesta = await _respuestaRepository.ListaPreguntasEncuestaRepository(encuestaId);
+            var encuesta = await _respuestaRepository.ListaPreguntasEncuestaRepository(encuestaId, encuestadoDNI);
 
             string nombreDocente = await _respuestaRepository.BuscarNombreDocente(encuesta.DocenteId);
 

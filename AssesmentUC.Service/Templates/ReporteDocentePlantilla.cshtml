@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte Docente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            color: #004085;
+            margin-bottom: 5px;
+        }
+
+        .header {
+            border-bottom: 2px solid #004085;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+            .header h1 {
+                font-size: 20px;
+                text-align: center;
+            }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+            .info strong {
+                color: #004085;
+            }
+
+        .bloque {
+            margin-bottom: 20px;
+        }
+
+            .bloque h3 {
+                background-color: #e9ecef;
+                padding: 6px;
+                border-left: 5px solid #004085;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>REPORTE DE ENCUESTA DOCENTE</h1>
+    </div>
+
+    <div class="info">
+        <p><strong>Encuesta:</strong> @Model.NombreEncuesta</p>
+        <p><strong>Docente:</strong> @Model.Docente</p>
+        <p><strong>Periodo:</strong> @Model.Periodo</p>
+        <p><strong>Sección:</strong> @Model.Seccion</p>
+        <p><strong>Fecha:</strong> @Model.FechaInicio - @Model.FechaFin</p>
+    </div>
+
+    @foreach (var bloque in Model.Bloques)
+    {
+    <div class="bloque">
+        <h3>@bloque.TituloBloque</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pregunta</th>
+                    <th>Promedio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pregunta in bloque.Preguntas)
+                {
+                <tr>
+                    <td>@pregunta.TextoPregunta</td>
+                    <td style="text-align:center;">@pregunta.Promedio</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+
+    <div class="footer">
+        Generado automáticamente por el sistema - @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+    </div>
+</body>
+</html>

@@ -63,6 +63,7 @@ namespace AssesmentUC.Service.Service.Impl
                 Programa = e.TipoPrograma,
                 Seccion = e.Seccion,
                 Modulo = e.Modulo,
+                TipoEncuestadoId = e.TipoEncuestadoId,
                 FechaCreacion = e.FechaCreacion
             }).ToList();
 
@@ -117,6 +118,7 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
+
         public async Task<List<ListaTiposDTO>> ListarSedesAsync()
         {
             var sedes = await _encuestaRepository.ListarSedesRepository();
@@ -204,6 +206,22 @@ namespace AssesmentUC.Service.Service.Impl
 
             return dtoList;
         }
+
+        public async Task<List<ListaTiposDTO>> ListarAsesoresAsync(string seccion)
+        {
+            var listAsesores = await _encuestaRepository.ListarAsesoresRepository(seccion);
+
+            var dtoList = listAsesores
+                .Select(e => new ListaTiposDTO
+                {
+                    AsesorId = e.AsesorId,
+                    NombreTipo = e.Asesor
+                })
+                .ToList();
+
+            return dtoList;
+        }
+
         public async Task<List<ListaTiposDTO>> ListarTipoEncuestadoAsync()
         {
             var tiposEncuestado = await _encuestaRepository.ListarTipoEncuestadoRepository();
@@ -379,10 +397,10 @@ namespace AssesmentUC.Service.Service.Impl
                     }).ToList();
                     break;
 
-                case 3: //administrativos --FALTA DEFINIR
+                case 3: //administrativos
                     listaEncuestados = new List<EncuestadoDNIDTO>
                     {
-                        new EncuestadoDNIDTO { EncuestadoId = "qqadmin", EncuestadoNombre = "Administrador" }
+                        new EncuestadoDNIDTO { EncuestadoId = dtoEncuesta.AsesorId, EncuestadoNombre = dtoEncuesta.Asesor }
                     };
                     break;
 

@@ -13,7 +13,7 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<List<RespuestaListAllDTO>> ListarEncuestasRespondidasAsync(string alumnoId);
         public Task RegistrarRespuestaAsync(RespuestaEncuestaCreateDTO dto);
         public Task<bool> VerificarSiRespondioAsync(int encuestaId, string AlumnoId);
-        public Task<EncuestaAsignaturaDetailDTO> ListarPreguntasEncuestaAsync(int encuestaId);
+        public Task<EncuestaAsignaturaDetailDTO> ListarPreguntasEncuestaAsync(int encuestaId, string encuestadoDNI);
         public Task<List<EncuestasPendientesDTO>> ListaEncuestaAsignaturaAsync(string alumnoId);
         public Task<bool> VerificarEncuestaActivaAsync(int encuestaId);
     }

@@ -19,6 +19,7 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
         public Task<List<Encuesta>> ListarAsignaturasRepository(string seccion, string? programa);
         public Task<List<Encuesta>> ListarDocentesRepository(string seccion, string asignatura);
         public Task<List<Encuesta>> ListarTipoProgramaRepository(string seccion);
+        public Task<List<Encuesta>> ListarAsesoresRepository(string seccion);
         public Task<List<Encuesta>> ListarTipoEncuestadoRepository();
         public Task<int> CrearAsignaturaEncuestaRepository(Encuesta encuesta);
         public Task InsertarEncuestasPorAsignaturaBulkAsync(int encuestaId, string usuario, List<string> alumnos, int TipoEncuestadoId);

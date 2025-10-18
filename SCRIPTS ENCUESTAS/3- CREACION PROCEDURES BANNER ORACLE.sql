@@ -1,35 +1,16 @@
 
-
---CREATE OR REPLACE PROCEDURE SSP_LISTAR_TIPO_PROGRAMA (
---    p_cursor OUT SYS_REFCURSOR
---) IS
---BEGIN
---    OPEN p_cursor FOR
---        SELECT
---            DISTINCT SSBSECT_SUBJ_CODE AS TIPO_PROGRAMA_ID,
---                   (CASE WHEN SSBSECT_SUBJ_CODE = 'PSDP' THEN 'DIPLOMAS'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSEV' THEN 'EVENTOS'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSMA' THEN 'MAESTRIA'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSPA' THEN 'PASANTIA'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSPE' THEN 'PROGRAMAS DE ESPECIALIZACION'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSCC' THEN 'CURSO CERRADO'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSCU' THEN 'CURSO'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSDI' THEN 'DIPLOMADO'
---                         WHEN SSBSECT_SUBJ_CODE = 'PSDO' THEN 'DOCTORADO' END) AS NOMBRE_PROGRAMA
---               FROM SSBSECT
---               WHERE SSBSECT_SUBJ_CODE IN (  'PSDP'
---                                            ,'PSEV'
---                                            ,'PSMA'
---                                            ,'PSPA'
---                                            ,'PSPE'
---                                            ,'PSCC'
---                                            ,'PSCU'
---                                            ,'PSDI'
---                                            ,'PSDO');
---END;
---/
-
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_TIPO_PROGRAMA (
+/*
+--  FILE NAME..: encuestas_oracle.sqlencuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_TIPO_PROGRAMA
+--  PRODUCT....: (Listar los tipos de programas para creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_TIPO_PROGRAMA (
     P_BLCK_CODE IN VARCHAR2,
     O_CURSOR    OUT SYS_REFCURSOR
 ) AS
@@ -50,8 +31,18 @@ END;
 /
 
 
-
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_SECCIONES (
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_SECCIONES
+--  PRODUCT....: (Listar las secciones para creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_SECCIONES (
     p_cursor OUT SYS_REFCURSOR
 ) IS
     v_max_anio   VARCHAR2(2);
@@ -80,7 +71,19 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_PERIODOS (
+
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_PERIODOS
+--  PRODUCT....: (Listar periodos para creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_PERIODOS (
     p_cursor OUT SYS_REFCURSOR
 ) IS
     v_max_year NUMBER;
@@ -112,7 +115,18 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_SEDES (
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_SEDES
+--  PRODUCT....: (Listar las sedes para la creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_SEDES (
     P_CURSOR OUT SYS_REFCURSOR
 )
 AS
@@ -122,10 +136,22 @@ BEGIN
                STVCAMP_DESC AS NOMBRE_SEDE
         FROM STVCAMP
         ORDER BY STVCAMP_CODE;
-END SSP_LISTAR_SEDES;
+END;
 /
 
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_ASIGNATURAS (
+
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_ASIGNATURAS
+--  PRODUCT....: (Listar las asignaturas para la creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_ASIGNATURAS (
     p_blck_code   IN VARCHAR2,
     p_program_id  IN VARCHAR2,
     p_cursor      OUT SYS_REFCURSOR
@@ -154,7 +180,18 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_DOCENTES_ASIGNATURA (
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_DOCENTES_ASIGNATURA
+--  PRODUCT....: (Listar los docentes por asignatura para la creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_DOCENTES_ASIGNATURA (
     p_seccion    IN VARCHAR2,
     p_asignatura IN VARCHAR2,
     p_cursor     OUT SYS_REFCURSOR
@@ -192,41 +229,19 @@ BEGIN
 END;
 /
 
---CREATE OR REPLACE PROCEDURE SSP_LISTAR_CORREOS_ENCUESTA
---(
---    p_blck_code IN VARCHAR2,
---    p_cursor    OUT SYS_REFCURSOR
---)
---AS
---BEGIN
---    OPEN p_cursor FOR
---        SELECT DISTINCT
---               T3.spriden_id AS ALUMNO_ID,
---               T3.spriden_id || '@continental.edu.pe' AS CORREO_ALUMNO
---        FROM sfrensp T1
---        INNER JOIN sfrstcr T2 ON T2.sfrstcr_term_code   = T1.sfrensp_term_code
---           AND T2.sfrstcr_pidm        = T1.sfrensp_pidm
---           AND T2.sfrstcr_stsp_key_sequence = T1.sfrensp_key_seqno
---        INNER JOIN spriden T3 ON T3.spriden_pidm = T1.sfrensp_pidm
---           AND T3.spriden_change_ind IS NULL
---        INNER JOIN sorlcur T4 ON T4.sorlcur_pidm = T1.sfrensp_pidm
---           AND T4.sorlcur_seqno = (
---                  SELECT MAX(a.sorlcur_seqno)
---                    FROM sorlcur a
---                   WHERE a.sorlcur_pidm = T1.sfrensp_pidm
---                     AND a.sorlcur_lmod_code = 'LEARNER'
---                     AND a.sorlcur_cact_code = 'ACTIVE'
---                     AND a.sorlcur_key_seqno = T1.sfrensp_key_seqno
---                     AND a.sorlcur_term_code <= T1.sfrensp_term_code
---               )
---        INNER JOIN sgrstsp T5 ON T5.sgrstsp_pidm = T1.sfrensp_pidm
---           AND T5.sgrstsp_key_seqno = T4.sorlcur_key_seqno
---        WHERE T5.sgrstsp_blck_code = p_blck_code;
---END;
---/
 
-
-CREATE OR REPLACE PROCEDURE SSP_LISTAR_CORREOS_ENCUESTA (
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_CORREOS_ENCUESTA
+--  PRODUCT....: (Listar los correos de quienes van a recibir la encuesta creada)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_CORREOS_ENCUESTA (
     p_asignatura IN VARCHAR2,
     p_seccion    IN VARCHAR2,
     p_cursor     OUT SYS_REFCURSOR
@@ -265,7 +280,18 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE SSP_NOMBRE_DOCENTE_DNI (
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_NOMBRE_DOCENTE_DNI
+--  PRODUCT....: (Listar los nombres de los docentes para la creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_NOMBRE_DOCENTE_DNI (
     P_BLCK_CODE IN VARCHAR2,
     O_CURSOR    OUT SYS_REFCURSOR
 ) AS
@@ -281,4 +307,33 @@ BEGIN
 END;
 /
 
+
+/*
+--  FILE NAME..: encuestas_oracle.sql
+--  RELEASE....: 9.0 [U. CONTINENTAL 1.0]
+--  OBJECT NAME: P_LISTAR_ASESORES
+--  PRODUCT....: (Listar los nombres de los asesores para la creación de encuestas)
+--  COPYRIGHT..: Copyright Copyright UNIVERSIDAD CONTINENTAL 2025
+---------------------------------------------------------------------------
+--  MOD     FECHA       USUARIO     MODIFICACION
+---------------------------------------------------------------------------
+    001     DD/MM/YYYY  
+*/
+CREATE OR REPLACE PROCEDURE P_LISTAR_ASESORES (
+    P_BLCK_CODE IN VARCHAR2,
+    O_CURSOR    OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN O_CURSOR FOR
+        SELECT DISTINCT
+            --g.govsdav_pk_parenttab,
+            g.govsdav_value_as_char AS ASESOR_ID
+            ,s.spriden_first_name || ' ' || s.spriden_last_name AS NOMBRE_ASESOR
+        FROM GOVSDAV g
+        INNER JOIN SPRIDEN s ON s.SPRIDEN_ID = g.govsdav_value_as_char
+        WHERE g.GOVSDAV_TABLE_NAME = 'STVBLCK'
+        AND g.GOVSDAV_ATTR_NAME ='DNI_ASESOR'
+        AND g.govsdav_pk_parenttab = P_BLCK_CODE;
+END;
+/
 

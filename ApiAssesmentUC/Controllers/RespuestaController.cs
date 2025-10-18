@@ -58,10 +58,10 @@ namespace AssesmentUC.Api.Controllers
             return Ok(respondido);
         }
 
-        [HttpGet("ListarPreguntasEncuesta/{encuestaId}")]
-        public async Task<IActionResult> ListarPreguntasEncuestaAsignaturaAsync(int encuestaId)
+        [HttpGet("ListarPreguntasEncuesta/{encuestaId}/{encuestadoDNI}")]
+        public async Task<IActionResult> ListarPreguntasEncuestaAsignaturaAsync(int encuestaId, string encuestadoDNI)
         {
-            var encuesta = await _respuestaService.ListarPreguntasEncuestaAsync(encuestaId);
+            var encuesta = await _respuestaService.ListarPreguntasEncuestaAsync(encuestaId, encuestadoDNI);
             if (encuesta == null)
             {
                 return NotFound(new { message = $"No se encontró ninguna encuesta con el ID {encuestaId}" });

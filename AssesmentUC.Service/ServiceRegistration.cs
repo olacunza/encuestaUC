@@ -1,5 +1,7 @@
 ﻿using AssesmentUC.Service.Service.Impl;
 using AssesmentUC.Service.Service.Interface;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ namespace AssesmentUC.Service
             services.AddScoped<IReporteService, ReporteService>(); 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<GoogleOAuthService>();
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             return services;
         }
     }

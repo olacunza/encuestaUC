@@ -18,6 +18,7 @@ namespace AssesmentUC.Service.DTO.Encuesta
         public string Programa { get; set; } = string.Empty;
         public string Seccion { get; set; } = string.Empty;
         public string Modulo { get; set; } = string.Empty;
+        public int TipoEncuestadoId { get; set; }
         public DateTime FechaCreacion { get; set; }
     }
 }

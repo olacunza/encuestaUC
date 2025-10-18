@@ -32,7 +32,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
 
-            var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ENCUESTAS_RESPONDIDAS", connection);
+            var cmd = new SqlCommand("ENCUESTA.sp_ListarRencuestasRespondidas", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
 
@@ -50,7 +50,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             return lista;
         }
-        public async Task<Encuesta> ListaPreguntasEncuestaRepository(int encuestaId)
+        public async Task<Encuesta> ListaPreguntasEncuestaRepository(int encuestaId, string encuestadoDNI)
         {
             Encuesta encuesta = null!;
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -58,10 +58,11 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ASIGNATURA_ENCUESTA_ID", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarAsignaturaEncuestaId", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
+                    cmd.Parameters.AddWithValue("@DNI_ENCUESTADO", encuestadoDNI);
 
                     using var reader = await cmd.ExecuteReaderAsync();
 
@@ -143,7 +144,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         public async Task<string?> BuscarNombreDocente(string dniDocente)
         {
             using var connection = new OracleConnection(_connectionStringBANNER);
-            using var command = new OracleCommand("SSP_NOMBRE_DOCENTE_DNI", connection);
+            using var command = new OracleCommand("P_NOMBRE_DOCENTE_DNI", connection);
             command.CommandType = CommandType.StoredProcedure;
 
             command.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2).Value = dniDocente;
@@ -171,7 +172,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
 
-            var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ENCUESTAS_PENDIENTES", connection);
+            var cmd = new SqlCommand("ENCUESTA.sp_ListarEncuestasPendientes", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
 
@@ -204,7 +205,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 int respuestaEncuestaId;
 
-                using (var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_RESPUESTA_ENCUESTA", connection, transaction))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_CrearRespuestaEncuesta", connection, transaction))
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", respuestaModel.EncuestaId);
@@ -218,7 +219,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                 foreach ( var r in respuestaModel.Respuestas)
                 {
-                    using var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_RESPUESTA_PREGUNTA", connection, transaction);
+                    using var cmd = new SqlCommand("ENCUESTA.sp_CrearRespuestaPregunta", connection, transaction);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@RESPUESTA_ENCUESTA_ID", respuestaEncuestaId);
                     cmd.Parameters.AddWithValue("@ENCUESTA_PREGUNTA_ID", r.EncuestaPreguntaId);
@@ -246,7 +247,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using var cmd = new SqlCommand("ENCUESTA.ACTUALIZAR_ENCUESTA_ENVIADA", connection, transaction);
+                using var cmd = new SqlCommand("ENCUESTA.sp_ActualizarEncuestaEnviada", connection, transaction);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@ENCUESTA_ASIGNATURA_ID", encuestaId);
                 cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
@@ -267,7 +268,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
-            using var cmd = new SqlCommand("ENCUESTA.VALIDAR_RESPUESTA_ALUMNO", connection);
+            using var cmd = new SqlCommand("ENCUESTA.sp_ValidarRespuestaAlumno", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
@@ -279,7 +280,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
-            using var cmd = new SqlCommand("ENCUESTA.VALIDAR_ENCUESTA_ACTIVA", connection);
+            using var cmd = new SqlCommand("ENCUESTA.sp_ValidarEncuestaActiva", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             var result = await cmd.ExecuteScalarAsync();

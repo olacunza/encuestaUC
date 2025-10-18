@@ -29,6 +29,8 @@ namespace AssesmentUC.Service.DTO.Encuesta
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? DocenteId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? AsesorId { get; set; }
         public string? NombreTipo { get; set; }
         
     }

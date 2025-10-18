@@ -34,7 +34,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_PLANTILLA_ENCUESTAS", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarPlantillaEncuestas", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@PageNumber", pageNumber);
@@ -72,7 +72,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_ASIGNATURA_ENCUESTAS", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarAsignaturaEncuestas", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@SECCION", string.IsNullOrEmpty(filtro.Seccion) ? (object)DBNull.Value : filtro.Seccion);
@@ -94,6 +94,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                                 TipoPrograma = reader.GetString(reader.GetOrdinal("TIPO_PROGRAMA")),
                                 Seccion = reader.GetString(reader.GetOrdinal("SECCION")),
                                 Modulo = reader.GetString(reader.GetOrdinal("MODULO")),
+                                TipoEncuestadoId = reader.GetInt32(reader.GetOrdinal("TIPO_ENCUESTADO")),
                                 FechaCreacion = reader.GetDateTime(reader.GetOrdinal("FECHA_ENVIO"))
                             };
 
@@ -118,7 +119,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_PLANTILLA_ENCUESTA_ID", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarPlantillaEncuestaId", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", id);
@@ -201,7 +202,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_TIPO_ENCUESTA", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarTipoEncuesta", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -237,7 +238,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.SSP_LISTAR_TIPO_ENCUESTADO", connection))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarTipoEncuestado", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -273,7 +274,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_SEDES", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_SEDES", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -309,7 +310,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_PERIODOS", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_PERIODOS", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -346,7 +347,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_SECCIONES", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_SECCIONES", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -384,7 +385,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_ASIGNATURAS", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_ASIGNATURAS", connection))
                 {
                     cmd.Parameters.Add("p_blck_code", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_program_id", OracleDbType.Varchar2, programa, ParameterDirection.Input);
@@ -422,7 +423,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_DOCENTES_ASIGNATURA", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_DOCENTES_ASIGNATURA", connection))
                 {
                     cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
@@ -462,7 +463,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 
-                using (var cmd = new OracleCommand("SSP_LISTAR_TIPO_PROGRAMA", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_TIPO_PROGRAMA", connection))
                 {
                     cmd.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -483,6 +484,45 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 }
 
                 return programas;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<List<Encuesta>> ListarAsesoresRepository(string seccion)
+        {
+            var asesores = new List<Encuesta>();
+            using var connection = new OracleConnection(_connectionStringBANNER);
+            await connection.OpenAsync();
+
+            try
+            {
+                
+                using (var cmd = new OracleCommand("P_LISTAR_ASESORES", connection))
+                {
+                    cmd.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
+                    cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        var asesor = new Encuesta
+                        {
+                            AsesorId = reader.GetString(reader.GetOrdinal("ASESOR_ID")),
+                            Asesor = reader.GetString(reader.GetOrdinal("NOMBRE_ASESOR"))
+                        };
+
+                        asesores.Add(asesor);
+                    }
+                }
+
+                return asesores;
 
             }
             catch (Exception ex)
@@ -529,7 +569,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 int encuestaId;
-                using (var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_ENCUESTA_ASIGNATURA", connection, transaction))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_CrearEncuestaAsignatura", connection, transaction))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@NOMBRE_ENCUESTA", encuesta.NombreEncuesta);
@@ -560,7 +600,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     foreach (var bloque in encuesta.Bloques)
                     {
                         int bloqueId;
-                        using (var cmdBloque = new SqlCommand("ENCUESTA.ISP_CREAR_BLOQUE_ASIGNATURA", connection, transaction))
+                        using (var cmdBloque = new SqlCommand("ENCUESTA.sp_CrearBloqueAsignatura", connection, transaction))
                         {
                             cmdBloque.CommandType = CommandType.StoredProcedure;
                             cmdBloque.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -580,7 +620,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                         {
                             foreach (var pregunta in bloque.Preguntas)
                             {
-                                using (var cmdPregunta = new SqlCommand("ENCUESTA.ISP_CREAR_PREGUNTA_ASIGNATURA", connection, transaction))
+                                using (var cmdPregunta = new SqlCommand("ENCUESTA.sp_CrearPreguntaAsignatura", connection, transaction))
                                 {
                                     cmdPregunta.CommandType = CommandType.StoredProcedure;
                                     cmdPregunta.Parameters.AddWithValue("@BLOQUE_ID", bloqueId);
@@ -619,7 +659,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("SSP_LISTAR_CORREOS_ENCUESTA", connection))
+                using (var cmd = new OracleCommand("P_LISTAR_CORREOS_ENCUESTA", connection))
                 {
                     cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
                     cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
@@ -693,7 +733,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 int encuestaId;
-                using (var cmd = new SqlCommand("ENCUESTA.ISP_CREAR_ENCUESTA_PLANTILLA", connection, transaction))
+                using (var cmd = new SqlCommand("ENCUESTA.sp_CrearEncuestaPlantilla", connection, transaction))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@NOMBRE_ENCUESTA", encuesta.NombreEncuesta);
@@ -714,7 +754,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                     foreach (var bloque in encuesta.Bloques)
                     {
                         int bloqueId;
-                        using (var cmdBloque = new SqlCommand("ENCUESTA.ISP_CREAR_BLOQUE", connection, transaction))
+                        using (var cmdBloque = new SqlCommand("ENCUESTA.sp_CrearBloquePlantilla", connection, transaction))
                         {
                             cmdBloque.CommandType = CommandType.StoredProcedure;
                             cmdBloque.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -735,7 +775,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                         {
                             foreach (var pregunta in bloque.Preguntas)
                             {
-                                using (var cmdPregunta = new SqlCommand("ENCUESTA.ISP_CREAR_PREGUNTA", connection, transaction))
+                                using (var cmdPregunta = new SqlCommand("ENCUESTA.sp_CrearPreguntaPlantilla", connection, transaction))
                                 {
                                     cmdPregunta.CommandType = CommandType.StoredProcedure;
                                     cmdPregunta.Parameters.AddWithValue("@BLOQUE_ID", bloqueId);
@@ -774,7 +814,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using ( var cmd = new SqlCommand("ENCUESTA.USP_EDITAR_PLANTILLA_ENCUESTA", connection, transaction))
+                using ( var cmd = new SqlCommand("ENCUESTA.sp_EditarPlantillaEncuesta", connection, transaction))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuesta.EncuestaId);
@@ -796,7 +836,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                         if ( bloqueId > 0 )
                         {
-                            using var cmdBloque = new SqlCommand("ENCUESTA.USP_EDITAR_BLOQUE", connection, transaction);
+                            using var cmdBloque = new SqlCommand("ENCUESTA.sp_EditarBloquePlantilla", connection, transaction);
                             cmdBloque.CommandType = CommandType.StoredProcedure;
                             cmdBloque.Parameters.AddWithValue("@BLOQUE_ID", bloqueId);
                             cmdBloque.Parameters.AddWithValue("@TITULO_BLOQUE", (object?)bloque.TituloBloque ?? DBNull.Value);
@@ -808,7 +848,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                         }
                         else
                         {
-                            using var cmdBloque = new SqlCommand("ENCUESTA.ISP_CREAR_BLOQUE", connection, transaction);
+                            using var cmdBloque = new SqlCommand("ENCUESTA.sp_CrearBloquePlantilla", connection, transaction);
                             cmdBloque.CommandType = CommandType.StoredProcedure;
                             cmdBloque.Parameters.AddWithValue("@ENCUESTA_ID", encuesta.EncuestaId);
                             cmdBloque.Parameters.AddWithValue("@TITULO_BLOQUE", (object?)bloque.TituloBloque ?? DBNull.Value);
@@ -841,7 +881,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                                 }
                                 else
                                 {
-                                    using var cmdPregunta = new SqlCommand("ENCUESTA.ISP_CREAR_PREGUNTA", connection, transaction);
+                                    using var cmdPregunta = new SqlCommand("ENCUESTA.sp_CrearPreguntaPlantilla", connection, transaction);
                                     cmdPregunta.CommandType = CommandType.StoredProcedure;
                                     cmdPregunta.Parameters.AddWithValue("@BLOQUE_ID", bloqueId);
                                     cmdPregunta.Parameters.AddWithValue("@TEXTO_PREGUNTA", (object?)pregunta.TextoPregunta ?? DBNull.Value);
