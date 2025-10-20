@@ -14,5 +14,6 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
         public Task<ReporteEncuesta> ExportarValoresEncuestaAlumno(int encuestaId);
         public Task<ReporteEncuesta> ExportarValoresEncuestaDocente(int encuestaId);
         public Task<ReporteEncuesta> ExportarValoresEncuestaAsesor(int encuestaId);
+        public Task<ReporteEncuestaExcel> ExportarValoresEncuestaExcel(int encuestaId);
     }
 }

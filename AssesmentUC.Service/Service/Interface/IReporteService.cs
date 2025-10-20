@@ -13,11 +13,9 @@ namespace AssesmentUC.Service.Service.Interface
         public Task<ReporteEncuestaDto> ExportarValoresEncuestaAlumno(int encuestaId);
         public Task<ReporteEncuestaDto> ExportarValoresEncuestaDocente(int encuestaId);
         public Task<ReporteEncuestaDto> ExportarValoresEncuestaAsesor(int encuestaId);
-        //public Task<EncuestaExportarPdfDTO> ObtenerEncuestaParaExportar(int encuestaId);
-        //public Task<byte[]> GenerarPdfEncuesta(int id);
         public Task<byte[]> GenerarPdfEncuestaAlumno(int id);
         public Task<byte[]> GenerarPdfEncuestaDocente(int id);
         public Task<byte[]> GenerarPdfEncuestaAsesor(int id);
-        //public Task<byte[]> GenerarExcelEncuesta(int id);
+        public Task<byte[]> GenerarExcelEncuesta(int id);
     }
 }

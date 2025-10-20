@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AssesmentUC.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]/")]
     public class EncuestaController : ControllerBase

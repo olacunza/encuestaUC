@@ -1,8 +1,9 @@
-@model AssesmentUC.Service.DTO.Reporte.ReporteEncuestaDTO.ReporteEncuestaDto
+@model AssesmentUC.Service.DTO.ViewModel.ReporteEncuestaAlumnoViewModel
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Encuesta de Estudiantes al Docente</title>
     <style>
         body {
@@ -86,11 +87,12 @@
     </div>
 
     <div class="info">
-        <p><strong>Programa:</strong> @Model.Resumen?.PorcentajeEncuestados</p>
-        <p><strong>Sección:</strong> @Model.Resumen?.PorcentajeEncuestados</p>
-        <p><strong>NRC - Curso:</strong> @Model.Resumen?.PorcentajeEncuestados</p>
-        <p><strong>Docente:</strong> @Model.Resumen?.PorcentajeEncuestados</p>
+        <p><strong>Programa:</strong> @Model.Programa</p>
+        <p><strong>Secci&oacute;n:</strong> @Model.Seccion</p>
+        <p><strong>Curso:</strong> @Model.Asignatura</p>
+        <p><strong>Docente:</strong> @Model.Docente</p>
     </div>
+
 
     <p style="margin-top:10px;"><strong>Escala:</strong> 1 Muy Malo &nbsp; 2 Malo &nbsp; 3 Aceptable &nbsp; 4 Bueno &nbsp; 5 Muy Bueno</p>
 
@@ -141,14 +143,14 @@
     <div class="summary">
         <table>
             <tr><td><strong>Cantidad Encuestados:</strong></td><td>@Model.Resumen?.CantidadEncuestados</td></tr>
-            <tr><td><strong>Número de Matriculados:</strong></td><td>@Model.Resumen?.CantidadMatriculados</td></tr>
-            <tr><td><strong>Porcentaje Encuestados:</strong></td><td>@(Model.Resumen?.PorcentajeEncuestados?.ToString("0.##") ?? "0") %</td></tr>
-            <tr><td><strong>Promedio Encuesta:</strong></td><td>@(Model.Resumen?.PromedioTotalScore?.ToString("0.00") ?? "0")</td></tr>
+            <tr><td><strong>N&uacute;mero de Matriculados:</strong></td><td>@Model.Resumen?.CantidadMatriculados</td></tr>
+            <tr><td><strong>Porcentaje Encuestados:</strong></td><td>@(Model.Resumen?.PorcentajeEncuestados.ToString("0.##") ?? "0") %</td></tr>
+            <tr><td><strong>Promedio Encuesta:</strong></td><td>@(Model.Resumen?.PromedioTotalScore.ToString("0.00") ?? "0")</td></tr>
         </table>
     </div>
 
     <div class="footer">
-        Generado automáticamente el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+        Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
     </div>
 </body>
 </html>

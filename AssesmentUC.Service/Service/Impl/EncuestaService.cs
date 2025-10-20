@@ -7,6 +7,7 @@ using PdfSharpCore.Drawing;
 using ClosedXML.Excel;
 using Microsoft.Extensions.Configuration;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using System.Text;
 
 
 namespace AssesmentUC.Service.Service.Impl
@@ -419,9 +420,22 @@ namespace AssesmentUC.Service.Service.Impl
                 throw new InvalidOperationException("Encuesta creada pero no se envió a ningún correo (no había destinatarios).");
             }
 
+
+            //BORRAR -- SOLO PARA PRUEBAS
+            var datosHtml = new StringBuilder();
+            datosHtml.Append("<ul>");
+            foreach (var item in listaEncuestados)
+            {
+                datosHtml.Append($"<li><strong>{item.EncuestadoId}:</strong> {item.EncuestadoNombre}</li>");
+            }
+            datosHtml.Append("</ul>");
+            //BORRAR----------------------
+
             string baseUrl = _configuration["Paths:URLEncuestaDev"]!;
             string linkEncuesta = $"{baseUrl}{encuestaId}";
-            string cuerpo = $"{dtoCorreo.CuerpoCorreo}{Environment.NewLine}{linkEncuesta}";
+            string cuerpoCorreoHtml = dtoCorreo.CuerpoCorreo.Replace(Environment.NewLine, "<br>");
+            string cuerpo = $"{cuerpoCorreoHtml}<br>{linkEncuesta}<br><br>{datosHtml}";
+
 
             const int maxDestinatariosPorCorreo = 100;
 

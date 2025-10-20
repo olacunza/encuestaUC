@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model AssesmentUC.Service.DTO.ViewModel.ReporteEncuestaAsesorViewModel
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -58,10 +59,10 @@
     <h1>ENCUESTA ÁREA ACADÉMICA HACIA EL DOCENTE</h1>
 
     <div class="header">
-        <div><strong>Programa:</strong> {{Programa}}</div>
-        <div><strong>Sección:</strong> {{Seccion}}</div>
-        <div><strong>NRC - Curso:</strong> {{Curso}}</div>
-        <div><strong>Docente:</strong> {{Docente}}</div>
+        <div><strong>Programa:</strong> @Model.Programa</div>
+        <div><strong>Sección:</strong> @Model.Seccion</div>
+        <div><strong>NRC - Curso:</strong> @Model.Curso</div>
+        <div><strong>Docente:</strong> @Model.Docente</div>
     </div>
 
     <p>1 Muy Malo | 2 Malo | 3 Aceptable | 4 Bueno | 5 Muy Bueno</p>
@@ -75,32 +76,37 @@
             </tr>
         </thead>
         <tbody>
-            {{#each Preguntas}}
-            <tr>
-                <td>{{Nro}}</td>
-                <td>{{TextoPregunta}}</td>
-                <td style="text-align:center;">{{Promedio}}</td>
-            </tr>
-            {{/each}}
+            @foreach (var pregunta in Model.Preguntas)
+            {
+                <tr>
+                    <td>@pregunta.Nro</td>
+                    <td>@pregunta.TextoPregunta</td>
+                    <td style="text-align:center;">@pregunta.Promedio</td>
+                </tr>
+            }
         </tbody>
     </table>
 
     <div class="resumen">
-        <strong>PROMEDIO ENCUESTA ÁREA ACADÉMICA AL DOCENTE:</strong> {{PromedioArea}}
+        <strong>PROMEDIO ENCUESTA ÁREA ACADÉMICA AL DOCENTE:</strong> @Model.PromedioArea
     </div>
 
     <div class="final">
-        <p><strong>Promedio Encuesta Estudiantes al Docente (75%)</strong> {{PromedioEstudiantes}}</p>
-        <p><strong>Promedio Encuesta del Área Académica al Docente (15%)</strong> {{PromedioArea}}</p>
-        <p><strong>Evaluación del Cumplimiento Modelo Académico (10%)</strong> {{ModeloAcademico}}</p>
-        <p><strong>EVALUACIÓN FINAL DEL DOCENTE:</strong> {{EvaluacionFinal}}</p>
+        <p><strong>Promedio Encuesta Estudiantes al Docente (75%)</strong> @Model.PromedioEstudiantes</p>
+        <p><strong>Promedio Encuesta del Área Académica al Docente (15%)</strong> @Model.PromedioArea</p>
+        <p><strong>Evaluación del Cumplimiento Modelo Académico (10%)</strong> @Model.ModeloAcademico</p>
+        <p><strong>EVALUACIÓN FINAL DEL DOCENTE:</strong> @Model.EvaluacionFinal</p>
     </div>
 
     <div class="comentarios">
         <strong>COMENTARIOS:</strong>
-        <p>{{Comentarios}}</p>
+        <p>@Model.Comentarios</p>
         <br>
         <strong>Gestión Académica</strong>
+    </div>
+
+    <div class="footer">
+        Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
     </div>
 
 </body>

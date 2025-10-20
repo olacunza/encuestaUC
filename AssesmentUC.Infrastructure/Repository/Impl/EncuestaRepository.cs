@@ -709,7 +709,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             using var bulk = new SqlBulkCopy(connection)
             {
-                DestinationTableName = "ENCUESTA.ENCUESTA_ASIGNATURA_ALUMNO"
+                DestinationTableName = "ENCUESTA.tblEncuestaAsignaturaAlumno"
             };
 
             bulk.ColumnMappings.Add("ENCUESTA_ASIGNATURA_ID", "ENCUESTA_ASIGNATURA_ID");

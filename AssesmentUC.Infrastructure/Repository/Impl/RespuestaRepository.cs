@@ -16,8 +16,8 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 {
     public class RespuestaRepository : IRespuestaRepository
     {
-        public readonly string _connectionStringBDPRACTICAS;
-        public readonly string _connectionStringBANNER;
+        private readonly string _connectionStringBDPRACTICAS;
+        private readonly string _connectionStringBANNER;
 
         public RespuestaRepository(IConfiguration configuration)
         {

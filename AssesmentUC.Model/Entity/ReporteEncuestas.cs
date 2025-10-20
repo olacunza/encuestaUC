@@ -16,6 +16,8 @@ namespace AssesmentUC.Model.Entity
             public string Docente { get; set; } = string.Empty;
             public string Periodo { get; set; } = string.Empty;
             public string Seccion { get; set; } = string.Empty;
+            public string Asignatura { get; set; } = string.Empty;
+            public string Programa { get; set; } = string.Empty;
             public DateTime FechaInicio { get; set; }
             public DateTime FechaFin { get; set; }
             public List<ReporteBloque> Bloques { get; set; } = new();

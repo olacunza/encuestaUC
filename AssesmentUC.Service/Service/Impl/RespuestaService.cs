@@ -18,7 +18,7 @@ namespace AssesmentUC.Service.Service.Impl
 {
     public class RespuestaService : IRespuestaService
     {
-        public readonly IRespuestaRepository _respuestaRepository;
+        private readonly IRespuestaRepository _respuestaRepository;
 
         public RespuestaService(IRespuestaRepository respuestaRepository)
         {

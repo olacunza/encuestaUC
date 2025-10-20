@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static AssesmentUC.Model.Entity.ReporteEncuestas;
 
-namespace AssesmentUC.Service.DTO
+namespace AssesmentUC.Service.DTO.ViewModel
 {
     public class ReporteEncuestaDocenteViewModel
     {

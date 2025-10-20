@@ -7,6 +7,7 @@ using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Oracle.ManagedDataAccess.Client;
 using static System.Collections.Specialized.BitVector32;
 using static AssesmentUC.Model.Entity.ReporteEncuestas;
 
@@ -15,6 +16,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
     public class ReporteRepository : IReporteRepository
     {
         private readonly string _connectionStringBDPRACTICAS;
+        private readonly string _connectionStringBANNER;
 
         public ReporteRepository(IConfiguration configuration)
         {
@@ -25,6 +27,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         {
             var rows = new List<ReportePlano>();
             var resumen = new ReporteResumen();
+            var cabecera = new ReporteEncuesta();
 
             using (var connection = new SqlConnection(_connectionStringBDPRACTICAS))
             {
@@ -37,20 +40,33 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            rows.Add(new ReportePlano
+                            cabecera.NombreEncuesta = reader["NOMBRE_ENCUESTA"]?.ToString() ?? "";
+                            cabecera.Programa = reader["PROGRAMA"]?.ToString() ?? "";
+                            cabecera.Seccion = reader["SECCION"]?.ToString() ?? "";
+                            cabecera.Asignatura = reader["ASIGNATURA"]?.ToString() ?? "";
+                            cabecera.Docente = reader["DOCENTE"]?.ToString() ?? "";
+                        }
+
+                        // --- 2️⃣ Segundo SELECT: preguntas y promedios ---
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
                             {
-                                BLOQUE_ID = reader["BLOQUE_ID"] != DBNull.Value ? Convert.ToInt32(reader["BLOQUE_ID"]) : 0,
-                                TITULO_BLOQUE = reader["TITULO_BLOQUE"]?.ToString() ?? "(Sin bloque)",
-                                TEXTO_PREGUNTA = reader["TEXTO_PREGUNTA"]?.ToString() ?? string.Empty,
-                                PROMEDIO_SCORE = reader["PROMEDIO_SCORE"] != DBNull.Value ? Convert.ToDecimal(reader["PROMEDIO_SCORE"]) : (decimal?)null,
-                                PCT_1 = reader["PCT_1"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_1"]) : 0,
-                                PCT_2 = reader["PCT_2"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_2"]) : 0,
-                                PCT_3 = reader["PCT_3"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_3"]) : 0,
-                                PCT_4 = reader["PCT_4"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_4"]) : 0,
-                                PCT_5 = reader["PCT_5"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_5"]) : 0
-                            });
+                                rows.Add(new ReportePlano
+                                {
+                                    BLOQUE_ID = reader["BLOQUE_ID"] != DBNull.Value ? Convert.ToInt32(reader["BLOQUE_ID"]) : 0,
+                                    TITULO_BLOQUE = reader["TITULO_BLOQUE"]?.ToString() ?? "(Sin bloque)",
+                                    TEXTO_PREGUNTA = reader["TEXTO_PREGUNTA"]?.ToString() ?? string.Empty,
+                                    PROMEDIO_SCORE = reader["PROMEDIO_SCORE"] != DBNull.Value ? Convert.ToDecimal(reader["PROMEDIO_SCORE"]) : (decimal?)null,
+                                    PCT_1 = reader["PCT_1"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_1"]) : 0,
+                                    PCT_2 = reader["PCT_2"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_2"]) : 0,
+                                    PCT_3 = reader["PCT_3"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_3"]) : 0,
+                                    PCT_4 = reader["PCT_4"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_4"]) : 0,
+                                    PCT_5 = reader["PCT_5"] != DBNull.Value ? Convert.ToDecimal(reader["PCT_5"]) : 0
+                                });
+                            }
                         }
 
                         if (await reader.NextResultAsync() && await reader.ReadAsync())
@@ -99,6 +115,14 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 EncuestaId = encuestaId,
                 TipoEncuestado = "Alumno",
+                NombreEncuesta = cabecera.NombreEncuesta,
+                Docente = cabecera.Docente,
+                Periodo = cabecera.Periodo,
+                Programa = cabecera.Programa,
+                Seccion = cabecera.Seccion,
+                Asignatura = cabecera.Asignatura,
+                FechaInicio = cabecera.FechaInicio,
+                FechaFin = cabecera.FechaFin,
                 Resumen = resumen,
                 Bloques = bloques
             };
@@ -187,6 +211,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         public async Task<ReporteEncuesta> ExportarValoresEncuestaAsesor(int encuestaId)
         {
             var rows = new List<ReportePlano>();
+            var cabeceraEncuesta = new ReporteEncuesta();
             decimal promedioTotal = 0;
 
             using (var connection = new SqlConnection(_connectionStringBDPRACTICAS))
@@ -200,14 +225,25 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync())
+                        if (await reader.ReadAsync())
                         {
-                            rows.Add(new ReportePlano
+                            cabeceraEncuesta.NombreEncuesta = reader["NOMBRE_ENCUESTA"]?.ToString() ?? "";
+                            cabeceraEncuesta.Programa = reader["PROGRAMA"]?.ToString() ?? "";
+                            cabeceraEncuesta.Seccion = reader["SECCION"]?.ToString() ?? "";
+                            cabeceraEncuesta.Asignatura = reader["ASIGNATURA"]?.ToString() ?? "";
+                        }
+
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
                             {
-                                TITULO_BLOQUE = reader["TITULO_BLOQUE"]?.ToString() ?? "(Sin bloque)",
-                                TEXTO_PREGUNTA = reader["TEXTO_PREGUNTA"]?.ToString() ?? string.Empty,
-                                PROMEDIO_SCORE = reader["PROMEDIO_SCORE"] != DBNull.Value ? Convert.ToDecimal(reader["PROMEDIO_SCORE"]) : (decimal?)null
-                            });
+                                rows.Add(new ReportePlano
+                                {
+                                    TITULO_BLOQUE = reader["TITULO_BLOQUE"]?.ToString() ?? "(Sin bloque)",
+                                    TEXTO_PREGUNTA = reader["TEXTO_PREGUNTA"]?.ToString() ?? string.Empty,
+                                    PROMEDIO_SCORE = reader["PROMEDIO_SCORE"] != DBNull.Value ? Convert.ToDecimal(reader["PROMEDIO_SCORE"]) : (decimal?)null
+                                });
+                            }
                         }
 
                         if (await reader.NextResultAsync() && await reader.ReadAsync())
@@ -240,14 +276,170 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 })
                 .ToList();
 
-            return new ReporteEncuesta
-            {
-                EncuestaId = encuestaId,
-                TipoEncuestado = "Asesor",
-                Resumen = new ReporteResumen { PromedioTotalScore = promedioTotal },
-                Bloques = bloques
-            };
+            cabeceraEncuesta.EncuestaId = encuestaId;
+            cabeceraEncuesta.TipoEncuestado = "Asesor";
+            cabeceraEncuesta.Resumen = new ReporteResumen { PromedioTotalScore = promedioTotal };
+            cabeceraEncuesta.Bloques = bloques;
+
+            return cabeceraEncuesta;
         }
+
+        public async Task<ReporteEncuestaExcel> ExportarValoresEncuestaExcel(int encuestaId)
+        {
+            var reporte = new ReporteEncuestaExcel
+            {
+                Hoja1 = new Hoja1ResumenEncuesta(),
+                Hoja2 = new List<Hoja2RespuestasPivot>()
+            };
+
+            using (var connection = new SqlConnection(_connectionStringBDPRACTICAS))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand("ENCUESTA.sp_ListarReporteParaExcel", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        // ================== HOJA 1 - INFORMACIÓN GENERAL ==================
+                        if (await reader.ReadAsync())
+                        {
+                            reporte.Hoja1 = new Hoja1ResumenEncuesta
+                            {
+                                Programa = reader["PROGRAMA"]?.ToString(),
+                                Asignatura = reader["ASIGNATURA"]?.ToString(),
+                                Docente = reader["DOCENTE"]?.ToString(),
+                                Fechas = reader["FECHAS"]?.ToString(),
+                                TipoEncuesta = reader["TIPO_ENCUESTA"]?.ToString()
+                            };
+                        }
+
+                        // ================== BLOQUES PROMEDIO ==================
+                        var bloques = new List<Hoja1Bloque>();
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                bloques.Add(new Hoja1Bloque
+                                {
+                                    BloqueId = reader["BLOQUE_ID"] != DBNull.Value ? Convert.ToInt32(reader["BLOQUE_ID"]) : 0,
+                                    TituloBloque = reader["TITULO_BLOQUE"]?.ToString(),
+                                    PromedioBloque = reader["PROMEDIO_BLOQUE"] != DBNull.Value ? Convert.ToDecimal(reader["PROMEDIO_BLOQUE"]) : 0,
+                                    Preguntas = new List<Hoja1Pregunta>()
+                                });
+                            }
+                        }
+
+                        // ================== PREGUNTAS ==================
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                int bloqueId = reader["BLOQUE_ID"] != DBNull.Value ? Convert.ToInt32(reader["BLOQUE_ID"]) : 0;
+                                var bloque = bloques.FirstOrDefault(b => b.BloqueId == bloqueId);
+                                if (bloque != null)
+                                {
+                                    bloque.Preguntas.Add(new Hoja1Pregunta
+                                    {
+                                        PreguntaId = reader["PREGUNTA_ID"] != DBNull.Value ? Convert.ToInt32(reader["PREGUNTA_ID"]) : 0,
+                                        TextoPregunta = reader["TEXTO_PREGUNTA"]?.ToString(),
+                                        TipoPregunta = reader["TIPO_PREGUNTA"]?.ToString(),
+                                        PromedioPregunta = reader["PROMEDIO_PREGUNTA"] != DBNull.Value
+                                            ? Convert.ToDecimal(reader["PROMEDIO_PREGUNTA"])
+                                            : 0
+                                    });
+                                }
+                            }
+                        }
+
+                        // Asegurarnos que Hoja1 no sea null
+                        reporte.Hoja1.Bloques = bloques;
+
+                        // ================== PROMEDIO TOTAL ==================
+                        if (await reader.NextResultAsync() && await reader.ReadAsync())
+                        {
+                            reporte.Hoja1.PromedioTotal = reader["PROMEDIO_TOTAL"] != DBNull.Value
+                                ? Convert.ToDecimal(reader["PROMEDIO_TOTAL"])
+                                : 0;
+                        }
+
+                        // ================== CABECERA RESPUESTAS (OPCIONAL) ==================
+                        if (await reader.NextResultAsync())
+                        {
+                            // Este resultset parece ser la "cabecera" (ENCUESTA_ID, PREGUNTA_ID, TEXTO_PREGUNTA, COMENTARIO)
+                            // Si no necesitas almacenarlo, simplemente consumirlo o ignorarlo.
+                            while (await reader.ReadAsync())
+                            {
+                                // Si quieres guardarlo, hazlo aquí; de lo contrario lo consumimos y seguimos.
+                            }
+                        }
+
+                        // ================== CONTENIDO PIVOT ==================
+                        if (await reader.NextResultAsync())
+                        {
+                            var schema = reader.GetColumnSchema();
+                            var columnasPreguntas = schema
+                                .Where(c => int.TryParse(c.ColumnName, out _))
+                                .Select(c => int.Parse(c.ColumnName))
+                                .ToList();
+
+                            while (await reader.ReadAsync())
+                            {
+                                var item = new Hoja2RespuestasPivot
+                                {
+                                    EncuestaId = reader["ENCUESTA_ID"] != DBNull.Value ? Convert.ToInt32(reader["ENCUESTA_ID"]) : 0,
+                                    Comentario = reader["COMENTARIO"]?.ToString()
+                                };
+
+                                // Inicializar diccionario si es necesario
+                                if (item.Respuestas == null) item.Respuestas = new Dictionary<int, decimal?>();
+
+                                foreach (var pid in columnasPreguntas)
+                                {
+                                    var val = reader[pid.ToString()];
+                                    item.Respuestas[pid] = val != DBNull.Value ? Convert.ToDecimal(val) : (decimal?)null;
+                                }
+
+                                reporte.Hoja2.Add(item);
+                            }
+                        }
+
+                        // ----------------- IMPORTANTE: Después del PIVOT, el SP devuelve
+                        //                   UN resultset con PREGUNTA_ID,TEXTO_PREGUNTA
+                        //                   antes del resumen final. Hay que saltarlo. ----
+                        if (await reader.NextResultAsync())
+                        {
+                            // Este NextResultAsync() llega al SELECT PREGUNTA_ID, TEXTO_PREGUNTA
+                            // Si no necesitas ese resultset, consumimos/ignoramos:
+                            while (await reader.ReadAsync()) { /* ignorar */ }
+                        }
+
+                        // ================== RESUMEN FINAL ==================
+                        if (await reader.NextResultAsync() && await reader.ReadAsync())
+                        {
+                            // Ahora sí estamos en el resultset del COUNT
+                            reporte.Hoja3 = new Hoja3ResumenFinal
+                            {
+                                CantidadEncuestados = reader["CANTIDAD_ENCUESTADOS"] != DBNull.Value
+                                    ? Convert.ToInt32(reader["CANTIDAD_ENCUESTADOS"])
+                                    : 0
+                            };
+                        }
+                        else
+                        {
+                            // Si no vino resultset final, inicializamos por seguridad
+                            reporte.Hoja3 = new Hoja3ResumenFinal { CantidadEncuestados = 0 };
+                        }
+                    }
+                }
+            }
+
+            return reporte;
+        }
+
+
     }
 
     internal class ReportePlano

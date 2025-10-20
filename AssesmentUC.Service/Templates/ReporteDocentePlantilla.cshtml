@@ -80,7 +80,7 @@
         <p><strong>Docente:</strong> @Model.Docente</p>
         <p><strong>Periodo:</strong> @Model.Periodo</p>
         <p><strong>Sección:</strong> @Model.Seccion</p>
-        <p><strong>Fecha:</strong> @Model.FechaInicio - @Model.FechaFin</p>
+        <p><strong>Fecha:</strong> Desde @Model.FechaInicio.ToString("dd/MM/yyyy") - Hasta @Model.FechaFin.ToString("dd/MM/yyyy")</p>
     </div>
 
     @foreach (var bloque in Model.Bloques)
@@ -108,7 +108,7 @@
     }
 
     <div class="footer">
-        Generado automáticamente por el sistema - @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+        PDF Generado el - @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
     </div>
 </body>
 </html>
