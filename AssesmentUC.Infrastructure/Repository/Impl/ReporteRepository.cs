@@ -231,6 +231,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             cabeceraEncuesta.Programa = reader["PROGRAMA"]?.ToString() ?? "";
                             cabeceraEncuesta.Seccion = reader["SECCION"]?.ToString() ?? "";
                             cabeceraEncuesta.Asignatura = reader["ASIGNATURA"]?.ToString() ?? "";
+                            cabeceraEncuesta.Docente = reader["DOCENTE"]?.ToString() ?? "";
                         }
 
                         if (await reader.NextResultAsync())
