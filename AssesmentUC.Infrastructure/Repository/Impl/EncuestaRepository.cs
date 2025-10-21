@@ -532,34 +532,6 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             }
         }
 
-        public async Task<Encuesta> ListarModuloAsignaturaRepository(string asignatura)
-        {
-            using var connection = new OracleConnection(_connectionStringBANNER);
-            await connection.OpenAsync();
-
-            try
-            {
-                using var cmd = new OracleCommand("SSP_LISTAR_MODULO_ASIGNATURA", connection);
-                cmd.Parameters.Add("p_blck_code", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
-                cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                using var reader = await cmd.ExecuteReaderAsync();
-
-                await reader.ReadAsync();
-
-                return new Encuesta
-                {
-                    Modulo = reader.GetString(reader.GetOrdinal("MODULO"))
-                };
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
         public async Task<int> CrearAsignaturaEncuestaRepository(Encuesta encuesta)
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
@@ -867,7 +839,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                             {
                                 if ( pregunta.EncuestaDetalleId > 0)
                                 {
-                                    using var cmdPregunta = new SqlCommand("ENCUESTA.USP_EDITAR_PREGUNTA", connection, transaction);
+                                    using var cmdPregunta = new SqlCommand("ENCUESTA.sp_EditarPreguntaPlantilla", connection, transaction);
                                     cmdPregunta.CommandType = CommandType.StoredProcedure;
                                     cmdPregunta.Parameters.AddWithValue("@PREGUNTA_ID", pregunta.EncuestaDetalleId);
                                     cmdPregunta.Parameters.AddWithValue("@TEXTO_PREGUNTA", (object?)pregunta.TextoPregunta ?? DBNull.Value);
@@ -917,7 +889,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using var cmd = new SqlCommand("ENCUESTA.USP_ELIMINAR_ENCUESTA", connection, transaction);
+                using var cmd = new SqlCommand("ENCUESTA.sp_EliminarEncuestaPlantilla", connection, transaction);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@ENCUESTA_ID", id);
                 cmd.Parameters.AddWithValue("@USUARIO_MODIFICACION", usuario);
@@ -943,7 +915,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using var cmd = new SqlCommand("ENCUESTA.USP_ELIMINAR_BLOQUE", connection, transaction);
+                using var cmd = new SqlCommand("ENCUESTA.sp_EliminarBloquePlantilla", connection, transaction);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@BLOQUE_ID", id);
                 cmd.Parameters.AddWithValue("@USUARIO_MODIFICACION", usuario);
@@ -970,7 +942,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using var cmd = new SqlCommand("ENCUESTA.USP_ELIMINAR_PREGUNTA", connection, transaction);
+                using var cmd = new SqlCommand("ENCUESTA.sp_EliminarPreguntaPlantilla", connection, transaction);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@PREGUNTA_ID", id);
                 cmd.Parameters.AddWithValue("@USUARIO_MODIFICACION", usuario);

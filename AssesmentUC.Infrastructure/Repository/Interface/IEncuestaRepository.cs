@@ -23,7 +23,6 @@ namespace AssesmentUC.Infrastructure.Repository.Interface
         public Task<List<Encuesta>> ListarTipoEncuestadoRepository();
         public Task<int> CrearAsignaturaEncuestaRepository(Encuesta encuesta);
         public Task InsertarEncuestasPorAsignaturaBulkAsync(int encuestaId, string usuario, List<string> alumnos, int TipoEncuestadoId);
-        public Task<Encuesta> ListarModuloAsignaturaRepository(string asignatura);
         public Task<int> CrearPlantillaEncuestaRepository(Encuesta encuesta);
         public Task EditarEncuestaPlantillaRepository(Encuesta encuesta);
         public Task EliminarEncuestaRepository(int id, string usuario);
