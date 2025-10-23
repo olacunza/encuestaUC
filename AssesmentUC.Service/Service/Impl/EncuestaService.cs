@@ -426,7 +426,7 @@ namespace AssesmentUC.Service.Service.Impl
             datosHtml.Append("<ul>");
             foreach (var item in listaEncuestados)
             {
-                datosHtml.Append($"<li><strong>{item.EncuestadoId}:</strong> {item.EncuestadoNombre}</li>");
+                datosHtml.Append($"<li><strong>{item.EncuestadoId}: </strong> {item.EncuestadoNombre}</li>");
             }
             datosHtml.Append("</ul>");
             //BORRAR----------------------
@@ -434,8 +434,8 @@ namespace AssesmentUC.Service.Service.Impl
             string baseUrl = _configuration["Paths:URLEncuestaDev"]!;
             string linkEncuesta = $"{baseUrl}{encuestaId}";
             string cuerpoCorreoHtml = dtoCorreo.CuerpoCorreo.Replace(Environment.NewLine, "<br>");
-            string cuerpo = $"{cuerpoCorreoHtml}<br>{linkEncuesta}<br><br>{datosHtml}";
-
+            string cuerpo = $"{cuerpoCorreoHtml}<br><br>{linkEncuesta}<br><br>{datosHtml}"; //BORRAR PARA PROD
+            //string cuerpo = $"{cuerpoCorreoHtml}<br>{linkEncuesta}<br><br>{datosHtml}"; DESCOMENTAR PARA PROD
 
             const int maxDestinatariosPorCorreo = 100;
 

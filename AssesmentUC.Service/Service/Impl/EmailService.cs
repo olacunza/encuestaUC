@@ -50,7 +50,7 @@ namespace AssesmentUC.Service.Service.Impl
             //-------------------------
 
             message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
+            message.Body = new TextPart("html") { Text = body };
 
             using var client = new SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);

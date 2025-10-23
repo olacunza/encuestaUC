@@ -33,7 +33,7 @@ namespace AssesmentUC.Api.Controllers
                 var encuestaRespondida = await _respuestaService.VerificarSiRespondioAsync(dto.EncuestaId, dto.AlumnoId);
                 var encuestaActiva = await _respuestaService.VerificarEncuestaActivaAsync(dto.EncuestaId);
              
-                if (!encuestaRespondida)
+                if (!encuestaRespondida && encuestaActiva)
                 {
                     await _respuestaService.RegistrarRespuestaAsync(dto);
                     return Ok(new { success = true, message = "Respuestas guardadas correctamente" });
@@ -61,12 +61,23 @@ namespace AssesmentUC.Api.Controllers
         [HttpGet("ListarPreguntasEncuesta/{encuestaId}/{encuestadoDNI}")]
         public async Task<IActionResult> ListarPreguntasEncuestaAsignaturaAsync(int encuestaId, string encuestadoDNI)
         {
-            var encuesta = await _respuestaService.ListarPreguntasEncuestaAsync(encuestaId, encuestadoDNI);
-            if (encuesta == null)
+            var encuestaRespondida = await _respuestaService.VerificarSiRespondioAsync(encuestaId, encuestadoDNI);
+            var encuestaActiva = await _respuestaService.VerificarEncuestaActivaAsync(encuestaId);
+
+            if (!encuestaRespondida && encuestaActiva)
             {
-                return NotFound(new { message = $"No se encontró ninguna encuesta con el ID {encuestaId}" });
+                var encuesta = await _respuestaService.ListarPreguntasEncuestaAsync(encuestaId, encuestadoDNI);
+                if (encuesta == null)
+                {
+                    return NotFound(new { message = $"No se encontró ninguna encuesta con el ID {encuestaId}" });
+                }
+                return Ok(encuesta);
             }
-            return Ok(encuesta);
+            else
+            {
+                return Ok(new { success = false, message = $"El usuario ya ha respondido la encuesta con ID {encuestaId}" });
+            }
+            
         }
 
         [HttpGet("ListaEncuestasPendientes/{alumnoId}")]
