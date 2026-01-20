@@ -32,7 +32,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENCUESTA.sp_ListarReporteEncuestaAlumno", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAlumno", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -137,7 +137,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENCUESTA.sp_ListarReporteEncuestaDocente", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaDocente", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -217,7 +217,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENCUESTA.sp_ListarReporteEncuestaAsesor", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAsesor", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -296,7 +296,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENCUESTA.sp_ListarReporteParaExcel", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteParaExcel", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);

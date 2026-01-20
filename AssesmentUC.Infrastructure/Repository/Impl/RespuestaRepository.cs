@@ -32,7 +32,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
 
-            var cmd = new SqlCommand("ENCUESTA.sp_ListarRencuestasRespondidas", connection);
+            var cmd = new SqlCommand("ENC.sp_ListarRencuestasRespondidas", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
 
@@ -58,7 +58,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new SqlCommand("ENCUESTA.sp_ListarAsignaturaEncuestaId", connection))
+                using (var cmd = new SqlCommand("ENC.sp_ListarAsignaturaEncuestaId", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -172,7 +172,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
 
-            var cmd = new SqlCommand("ENCUESTA.sp_ListarEncuestasPendientes", connection);
+            var cmd = new SqlCommand("ENC.sp_ListarEncuestasPendientes", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
 
@@ -205,7 +205,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 int respuestaEncuestaId;
 
-                using (var cmd = new SqlCommand("ENCUESTA.sp_CrearRespuestaEncuesta", connection, transaction))
+                using (var cmd = new SqlCommand("ENC.sp_CrearRespuestaEncuesta", connection, transaction))
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@ENCUESTA_ID", respuestaModel.EncuestaId);
@@ -219,7 +219,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
                 foreach ( var r in respuestaModel.Respuestas)
                 {
-                    using var cmd = new SqlCommand("ENCUESTA.sp_CrearRespuestaPregunta", connection, transaction);
+                    using var cmd = new SqlCommand("ENC.sp_CrearRespuestaPregunta", connection, transaction);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@RESPUESTA_ENCUESTA_ID", respuestaEncuestaId);
                     cmd.Parameters.AddWithValue("@ENCUESTA_PREGUNTA_ID", r.EncuestaPreguntaId);
@@ -247,7 +247,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using var cmd = new SqlCommand("ENCUESTA.sp_ActualizarEncuestaEnviada", connection, transaction);
+                using var cmd = new SqlCommand("ENC.sp_ActualizarEncuestaEnviada", connection, transaction);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@ENCUESTA_ASIGNATURA_ID", encuestaId);
                 cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
@@ -268,7 +268,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
-            using var cmd = new SqlCommand("ENCUESTA.sp_ValidarRespuestaAlumno", connection);
+            using var cmd = new SqlCommand("ENC.sp_ValidarRespuestaAlumno", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             cmd.Parameters.AddWithValue("@ALUMNO_ID", alumnoId);
@@ -280,7 +280,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         {
             using var connection = new SqlConnection(_connectionStringBDPRACTICAS);
             await connection.OpenAsync();
-            using var cmd = new SqlCommand("ENCUESTA.sp_ValidarEncuestaActiva", connection);
+            using var cmd = new SqlCommand("ENC.sp_ValidarEncuestaActiva", connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
             var result = await cmd.ExecuteScalarAsync();
