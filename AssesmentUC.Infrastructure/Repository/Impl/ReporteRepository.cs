@@ -16,7 +16,6 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
     public class ReporteRepository : IReporteRepository
     {
         private readonly string _connectionStringBDPRACTICAS;
-        private readonly string _connectionStringBANNER;
 
         public ReporteRepository(IConfiguration configuration)
         {
