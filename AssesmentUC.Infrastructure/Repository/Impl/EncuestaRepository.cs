@@ -1,4 +1,4 @@
-﻿using AssesmentUC.Infrastructure.Repository.Interface;
+using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
 using Azure.Core;
 using Microsoft.Data.SqlClient;
@@ -274,7 +274,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_SEDES", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_SEDES", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -310,7 +310,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_PERIODOS", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_PERIODOS", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -347,7 +347,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_SECCIONES", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_SECCIONES", connection))
                 {
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -385,7 +385,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_ASIGNATURAS", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_ASIGNATURAS", connection))
                 {
                     cmd.Parameters.Add("p_blck_code", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_program_id", OracleDbType.Varchar2, programa, ParameterDirection.Input);
@@ -423,7 +423,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_DOCENTES_ASIGNATURA", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_DOCENTES_ASIGNATURA", connection))
                 {
                     cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
@@ -463,7 +463,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 
-                using (var cmd = new OracleCommand("P_LISTAR_TIPO_PROGRAMA", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_TIPO_PROGRAMA", connection))
                 {
                     cmd.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -502,7 +502,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             try
             {
                 
-                using (var cmd = new OracleCommand("P_LISTAR_ASESORES", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_ASESORES", connection))
                 {
                     cmd.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
                     cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
@@ -631,7 +631,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
             try
             {
-                using (var cmd = new OracleCommand("P_LISTAR_CORREOS_ENCUESTA", connection))
+                using (var cmd = new OracleCommand("BANINST1.SZKENC.P_LISTAR_CORREOS_ENCUESTA", connection))
                 {
                     cmd.Parameters.Add("p_asignatura", OracleDbType.Varchar2, asignatura, ParameterDirection.Input);
                     cmd.Parameters.Add("p_seccion", OracleDbType.Varchar2, seccion, ParameterDirection.Input);
