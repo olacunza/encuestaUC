@@ -1,4 +1,4 @@
-﻿using AssesmentUC.Infrastructure.Repository.Interface;
+using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -144,7 +144,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
         public async Task<string?> BuscarNombreDocente(string dniDocente)
         {
             using var connection = new OracleConnection(_connectionStringBANNER);
-            using var command = new OracleCommand("P_NOMBRE_DOCENTE_DNI", connection);
+            using var command = new OracleCommand("BANINST1.SZKENC.P_NOMBRE_DOCENTE_DNI", connection);
             command.CommandType = CommandType.StoredProcedure;
 
             command.Parameters.Add("P_BLCK_CODE", OracleDbType.Varchar2).Value = dniDocente;
