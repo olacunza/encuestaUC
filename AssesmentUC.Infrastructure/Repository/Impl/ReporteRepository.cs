@@ -32,7 +32,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAlumno", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAlumno_UC", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -137,7 +137,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaDocente", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaDocente_UC", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -217,7 +217,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAsesor", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteEncuestaAsesor_UC", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
@@ -296,7 +296,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             {
                 await connection.OpenAsync();
 
-                using (var command = new SqlCommand("ENC.sp_ListarReporteParaExcel", connection))
+                using (var command = new SqlCommand("ENC.sp_ListarReporteParaExcel_UC", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ENCUESTA_ID", encuestaId);
