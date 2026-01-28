@@ -17,13 +17,23 @@ namespace AssesmentUC.Infrastructure
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("BDPRACTICAS"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure()));
+                    sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    }));
 
             // Configurar Oracle DbContext
             services.AddDbContext<BannerDbContext>(options =>
                 options.UseOracle(
                     configuration.GetConnectionString("BANNER"),
-                    oracleOptions => oracleOptions.UseOracleSQLCompatibility("11")));
+                    oracleOptions =>
+                    {
+                        oracleOptions.UseOracleSQLCompatibility("11");
+                        oracleOptions.CommandTimeout(300); // 5 minutos timeout
+                    }));
 
             // Registrar repositorios
             services.AddScoped<IEncuestaRepository, EncuestaRepository>();

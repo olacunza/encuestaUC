@@ -21,16 +21,17 @@ namespace AssesmentUC.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuraciones para consultas de solo lectura
-            modelBuilder.Entity<Encuesta>()
-                .HasNoKey()
-                .ToView(null);
+            // Configurar claves primarias para entidades
+            modelBuilder.Entity<Encuesta>().HasKey(e => e.EncuestaId);
+            modelBuilder.Entity<EncuestaBloque>().HasKey(b => b.BloqueId);
+            modelBuilder.Entity<EncuestaPregunta>().HasKey(p => p.EncuestaDetalleId);
+            modelBuilder.Entity<RespuestaEncuesta>().HasKey(r => r.RespuestaId);
+            modelBuilder.Entity<RespuestaPregunta>().HasKey(r => r.RespuestaPreguntaId);
 
-            modelBuilder.Entity<RespuestaEncuesta>()
-                .HasNoKey()
-                .ToView(null);
-
-            // Si necesitas configurar relaciones, agregarlas aquí
+            // Para consultas de solo lectura (cuando se usan SPs que devuelven tipos diferentes)
+            // Estas configuraciones son para evitar que EF intente mapearlas a tablas
+            modelBuilder.Entity<Encuesta>().HasNoKey().ToView(null);
+            modelBuilder.Entity<RespuestaEncuesta>().HasNoKey().ToView(null);
         }
     }
 }

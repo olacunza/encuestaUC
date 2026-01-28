@@ -1,9 +1,11 @@
 using AssesmentUC.Infrastructure.Data;
 using AssesmentUC.Infrastructure.Repository.Interface;
 using AssesmentUC.Model.Entity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -172,42 +174,51 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
 
         public async Task InsertarEncuestasPorAsignaturaBulkAsync(int encuestaId, string usuario, List<string> alumnos, int tipoEncuestadoId)
         {
-            // Para operaciones bulk, mantenemos el SqlBulkCopy original
-            var conn = _sqlContext.Database.GetDbConnection();
-            if (conn.State != System.Data.ConnectionState.Open) await conn.OpenAsync();
+            var connection = _sqlContext.Database.GetDbConnection();
 
-            var table = new System.Data.DataTable();
-            table.Columns.Add("ENCUESTA_ASIGNATURA_ID", typeof(int));
-            table.Columns.Add("DNI_ENCUESTADO", typeof(string));
-            table.Columns.Add("COMPLETADO", typeof(bool));
-            table.Columns.Add("FECHA_CREACION", typeof(DateTime));
-            table.Columns.Add("USUARIO_CREACION", typeof(string));
-            table.Columns.Add("TIPO_ENCUESTADO_ID", typeof(int));
-
-            foreach (var alumnoId in alumnos)
+            try
             {
-                table.Rows.Add(encuestaId, alumnoId, false, DateTime.Now, usuario, tipoEncuestadoId);
-            }
+                if (connection.State != ConnectionState.Open)
+                    await connection.OpenAsync();
 
-            if (conn is Microsoft.Data.SqlClient.SqlConnection sqlConn)
-            {
-                using var bulk = new Microsoft.Data.SqlClient.SqlBulkCopy(sqlConn)
+                if (connection is SqlConnection sqlConn)
                 {
-                    DestinationTableName = "ENC.tblEncuestaAsignaturaAlumno"
-                };
+                    var table = new System.Data.DataTable();
+                    table.Columns.Add("ENCUESTA_ASIGNATURA_ID", typeof(int));
+                    table.Columns.Add("DNI_ENCUESTADO", typeof(string));
+                    table.Columns.Add("COMPLETADO", typeof(bool));
+                    table.Columns.Add("FECHA_CREACION", typeof(DateTime));
+                    table.Columns.Add("USUARIO_CREACION", typeof(string));
+                    table.Columns.Add("TIPO_ENCUESTADO_ID", typeof(int));
 
-                bulk.ColumnMappings.Add("ENCUESTA_ASIGNATURA_ID", "ENCUESTA_ASIGNATURA_ID");
-                bulk.ColumnMappings.Add("DNI_ENCUESTADO", "DNI_ENCUESTADO");
-                bulk.ColumnMappings.Add("COMPLETADO", "COMPLETADO");
-                bulk.ColumnMappings.Add("FECHA_CREACION", "FECHA_CREACION");
-                bulk.ColumnMappings.Add("USUARIO_CREACION", "USUARIO_CREACION");
-                bulk.ColumnMappings.Add("TIPO_ENCUESTADO_ID", "TIPO_ENCUESTADO_ID");
+                    foreach (var alumnoId in alumnos)
+                    {
+                        table.Rows.Add(encuestaId, alumnoId, false, DateTime.Now, usuario, tipoEncuestadoId);
+                    }
 
-                await bulk.WriteToServerAsync(table);
+                    using var bulk = new SqlBulkCopy(sqlConn, SqlBulkCopyOptions.Default, null)
+                    {
+                        DestinationTableName = "ENC.tblEncuestaAsignaturaAlumno"
+                    };
+
+                    bulk.ColumnMappings.Add("ENCUESTA_ASIGNATURA_ID", "ENCUESTA_ASIGNATURA_ID");
+                    bulk.ColumnMappings.Add("DNI_ENCUESTADO", "DNI_ENCUESTADO");
+                    bulk.ColumnMappings.Add("COMPLETADO", "COMPLETADO");
+                    bulk.ColumnMappings.Add("FECHA_CREACION", "FECHA_CREACION");
+                    bulk.ColumnMappings.Add("USUARIO_CREACION", "USUARIO_CREACION");
+                    bulk.ColumnMappings.Add("TIPO_ENCUESTADO_ID", "TIPO_ENCUESTADO_ID");
+
+                    await bulk.WriteToServerAsync(table);
+                }
+                else
+                {
+                    throw new InvalidOperationException("La conexión no es de tipo SqlConnection. Bulk copy no disponible.");
+                }
             }
-            else
+            finally
             {
-                throw new InvalidOperationException("La conexión no es de tipo SqlConnection. Bulk copy no disponible.");
+                if (connection.State == ConnectionState.Open)
+                    await connection.CloseAsync();
             }
         }
 
