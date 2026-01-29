@@ -179,7 +179,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 // Manejo específico para Oracle con REF CURSOR
                 if (connection is OracleConnection oracleConnection)
                 {
-                    using var command = new OracleCommand("BANINST1.SZKENC.P_NOMBRE_DOCENTE_DNI", oracleConnection)
+                    using var command = new OracleCommand("BANINST1.SZKENCU.P_NOMBRE_DOCENTE_DNI", oracleConnection)
                     {
                         CommandType = CommandType.StoredProcedure
                     };
@@ -198,7 +198,7 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 {
                     // Fallback para otros proveedores
                     using var command = connection.CreateCommand();
-                    command.CommandText = "BANINST1.SZKENC.P_NOMBRE_DOCENTE_DNI";
+                    command.CommandText = "BANINST1.SZKENCU.P_NOMBRE_DOCENTE_DNI";
                     command.CommandType = CommandType.StoredProcedure;
 
                     var parameter = command.CreateParameter();

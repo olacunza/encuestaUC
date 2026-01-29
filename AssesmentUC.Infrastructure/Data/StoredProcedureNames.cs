@@ -1,8 +1,8 @@
 namespace AssesmentUC.Infrastructure.Data
 {
     /// <summary>
-    /// Nombres de stored procedures utilizados en la aplicación.
-    /// Centralizar estos nombres evita errores tipográficos y facilita mantenimiento.
+    /// Nombres de stored procedures utilizados en la aplicaciï¿½n.
+    /// Centralizar estos nombres evita errores tipogrï¿½ficos y facilita mantenimiento.
     /// </summary>
     public static class StoredProcedureNames
     {
@@ -12,20 +12,20 @@ namespace AssesmentUC.Infrastructure.Data
         public const string SP_LISTAR_PLANTILLA_ENCUESTA_ID = "ENC.sp_ListarPlantillaEncuestaId";
         public const string SP_LISTAR_TIPO_ENCUESTA = "ENC.sp_ListarTipoEncuesta_UC";
         public const string SP_LISTAR_TIPO_ENCUESTADO = "ENC.sp_ListarTipoEncuestado";
-        public const string SP_LISTAR_SEDES = "BANINST1.SZKENC.P_LISTAR_SEDES";
-        public const string SP_LISTAR_PERIODOS = "BANINST1.SZKENC.P_LISTAR_PERIODOS";
-        public const string SP_LISTAR_SECCIONES = "BANINST1.SZKENC.P_LISTAR_SECCIONES";
-        public const string SP_LISTAR_ASIGNATURAS = "BANINST1.SZKENC.P_LISTAR_ASIGNATURAS";
-        public const string SP_LISTAR_DOCENTES = "BANINST1.SZKENC.P_LISTAR_DOCENTES_ASIGNATURA";
-        public const string SP_LISTAR_TIPO_PROGRAMA = "BANINST1.SZKENC.P_LISTAR_TIPO_PROGRAMA";
-        public const string SP_LISTAR_ASESORES = "BANINST1.SZKENC.P_LISTAR_ASESORES";
+        public const string SP_LISTAR_SEDES = "BANINST1.SZKENCU.P_LISTAR_SEDES";
+        public const string SP_LISTAR_PERIODOS = "BANINST1.SZKENCU.P_LISTAR_PERIODOS";
+        public const string SP_LISTAR_SECCIONES = "BANINST1.SZKENCU.P_LISTAR_SECCIONES";
+        public const string SP_LISTAR_ASIGNATURAS = "BANINST1.SZKENCU.P_LISTAR_ASIGNATURAS";
+        public const string SP_LISTAR_DOCENTES = "BANINST1.SZKENCU.P_LISTAR_DOCENTES_ASIGNATURA";
+        public const string SP_LISTAR_TIPO_PROGRAMA = "BANINST1.SZKENCU.P_LISTAR_TIPO_PROGRAMA";
+        public const string SP_LISTAR_ASESORES = "BANINST1.SZKENCU.P_LISTAR_ASESORES";
         public const string SP_CREAR_ENCUESTA_ASIGNATURA = "ENC.sp_CrearEncuestaAsignatura_UC";
         public const string SP_CREAR_ENCUESTA_PLANTILLA = "ENC.sp_CrearEncuestaPlantilla_UC";
         public const string SP_EDITAR_PLANTILLA_ENCUESTA = "ENC.sp_EditarPlantillaEncuesta_UC";
         public const string SP_ELIMINAR_ENCUESTA_PLANTILLA = "ENC.sp_EliminarEncuestaPlantilla_UC";
         public const string SP_ELIMINAR_BLOQUE_PLANTILLA = "ENC.sp_EliminarBloquePlantilla_UC";
         public const string SP_ELIMINAR_PREGUNTA_PLANTILLA = "ENC.sp_EliminarPreguntaPlantilla_UC";
-        public const string SP_LISTAR_CORREOS_ENCUESTA = "BANINST1.SZKENC.P_LISTAR_CORREOS_ENCUESTA";
+        public const string SP_LISTAR_CORREOS_ENCUESTA = "BANINST1.SZKENCU.P_LISTAR_CORREOS_ENCUESTA";
 
         // ===== RESPUESTAS =====
         public const string SP_LISTAR_ENCUESTAS_RESPONDIDAS = "ENC.sp_ListarRencuestasRespondidas_UC";
@@ -36,7 +36,7 @@ namespace AssesmentUC.Infrastructure.Data
         public const string SP_ACTUALIZAR_ENCUESTA_ENVIADA = "ENC.sp_ActualizarEncuestaEnviada_UC";
         public const string SP_VALIDAR_RESPUESTA_ALUMNO = "ENC.sp_ValidarRespuestaAlumno_UC";
         public const string SP_VALIDAR_ENCUESTA_ACTIVA = "ENC.sp_ValidarEncuestaActiva_UC";
-        public const string SP_NOMBRE_DOCENTE_DNI = "BANINST1.SZKENC.P_NOMBRE_DOCENTE_DNI";
+        public const string SP_NOMBRE_DOCENTE_DNI = "BANINST1.SZKENCU.P_NOMBRE_DOCENTE_DNI";
 
         // ===== REPORTES =====
         public const string SP_LISTAR_REPORTE_ENCUESTA_ALUMNO = "ENC.sp_ListarReporteEncuestaAlumno_UC";
