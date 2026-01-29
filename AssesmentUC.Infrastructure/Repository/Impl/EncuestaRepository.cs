@@ -22,158 +22,278 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
             _bannerContext = bannerContext;
         }
 
-        public async Task<List<Encuesta>> ListarPlantillaEncuestasRepository(int pageNumber, int pageSize)
+        public async Task<List<Encuesta>> ListarPlantillaEncuestas(int pageNumber, int pageSize)
         {
+            if (pageNumber < 1)
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), "El número de página debe ser mayor que 0");
+            if (pageSize < 1 || pageSize > 100)
+                throw new ArgumentOutOfRangeException(nameof(pageSize), "El tamaño de página debe estar entre 1 y 100");
+
             return await _sqlContext.Database.SqlQuery<Encuesta>(
-                $"EXEC ENC.sp_ListarPlantillaEncuestas_UC @PageNumber = {pageNumber}, @PageSize = {pageSize}"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_PLANTILLA_ENCUESTAS}
+                   @PageNumber = {pageNumber},
+                   @PageSize = {pageSize}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarAsignaturaEncuestasRepository(Encuesta filtro, int pageNumber, int pageSize)
+        public async Task<List<Encuesta>> ListarAsignaturaEncuestas(Encuesta filtro, int pageNumber, int pageSize)
         {
-            var seccionParam = string.IsNullOrEmpty(filtro.Seccion) ? "NULL" : $"'{filtro.Seccion}'";
-            var moduloParam = string.IsNullOrEmpty(filtro.Modulo) ? "NULL" : $"'{filtro.Modulo}'";
-            var docenteParam = string.IsNullOrEmpty(filtro.Docente) ? "NULL" : $"'{filtro.Docente}'";
-            var fechaInicioParam = filtro.FechaInicio == DateTime.MinValue ? "NULL" : $"'{filtro.FechaInicio:yyyy-MM-dd}'";
-            var fechaFinParam = filtro.FechaFin == DateTime.MinValue ? "NULL" : $"'{filtro.FechaFin:yyyy-MM-dd}'";
+            if (filtro == null)
+                throw new ArgumentNullException(nameof(filtro));
+            if (pageNumber < 1 || pageSize < 1)
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), "Parámetros de paginación inválidos");
 
-            var sql = $@"
-                EXEC ENC.sp_ListarAsignaturaEncuestas_UC 
-                    @SECCION = {seccionParam},
-                    @MODULO = {moduloParam},
-                    @DOCENTE = {docenteParam},
-                    @FECHA_INICIO = {fechaInicioParam},
-                    @FECHA_FIN = {fechaFinParam},
+            return await _sqlContext.Database.SqlQuery<Encuesta>(
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_ASIGNATURA_ENCUESTAS}
+                    @SECCION = {filtro.Seccion},
+                    @MODULO = {filtro.Modulo},
+                    @DOCENTE = {filtro.Docente},
+                    @FECHA_INICIO = {(filtro.FechaInicio != DateTime.MinValue ? filtro.FechaInicio : (DateTime?)null)},
+                    @FECHA_FIN = {(filtro.FechaFin != DateTime.MinValue ? filtro.FechaFin : (DateTime?)null)},
                     @PAGENUMBER = {pageNumber},
-                    @PAGESIZE = {pageSize}";
-
-            return await _sqlContext.Database.SqlQuery<Encuesta>(sql).ToListAsync();
+                    @PAGESIZE = {pageSize}"
+            ).ToListAsync();
         }
 
-        public async Task<Encuesta> ListarPlantillaEncuestaIdRepository(int id)
+        public async Task<Encuesta> ListarPlantillaEncuestaById(int id)
         {
+            if (id < 1)
+                throw new ArgumentOutOfRangeException(nameof(id), "El ID debe ser mayor que 0");
+
             var encuesta = await _sqlContext.Database.SqlQuery<Encuesta>(
-                $"EXEC ENC.sp_ListarPlantillaEncuestaId @ENCUESTA_ID = {id}"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_PLANTILLA_ENCUESTA_ID}
+                    @ENCUESTA_ID = {id}"
             ).FirstOrDefaultAsync();
 
             if (encuesta == null)
-                throw new KeyNotFoundException($"No se encontró ninguna encuesta con el ID {id}");
+                throw new KeyNotFoundException($"No se encontró encuesta con ID {id}");
 
             return encuesta;
         }
 
-        public async Task<List<Encuesta>> ListarTipoEncuestaRepository()
+        public async Task<List<Encuesta>> ListarTipoEncuesta()
         {
             return await _sqlContext.Database.SqlQuery<Encuesta>(
-                "EXEC ENC.sp_ListarTipoEncuesta_UC"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_TIPO_ENCUESTA}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarTipoEncuestadoRepository()
+        public async Task<List<Encuesta>> ListarTipoEncuestado()
         {
             return await _sqlContext.Database.SqlQuery<Encuesta>(
-                "EXEC ENC.sp_ListarTipoEncuestado"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_TIPO_ENCUESTADO}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarSedesRepository()
+        public async Task<List<Encuesta>> ListarSedes()
         {
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                "EXEC BANINST1.SZKENC.P_LISTAR_SEDES"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_SEDES}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarPeriodosRepository()
+        public async Task<List<Encuesta>> ListarPeriodos()
         {
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                "EXEC BANINST1.SZKENC.P_LISTAR_PERIODOS"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_PERIODOS}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarSeccionesRepository()
+        public async Task<List<Encuesta>> ListarSecciones()
         {
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                "EXEC BANINST1.SZKENC.P_LISTAR_SECCIONES"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_SECCIONES}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarAsignaturasRepository(string seccion, string? programa)
+        public async Task<List<Encuesta>> ListarAsignaturas(string seccion, string? programa)
         {
-            var programaParam = string.IsNullOrEmpty(programa) ? "''" : $"'{programa}'";
+            if (string.IsNullOrWhiteSpace(seccion))
+                throw new ArgumentException("La sección no puede estar vacía", nameof(seccion));
 
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                $"EXEC BANINST1.SZKENC.P_LISTAR_ASIGNATURAS @p_blck_code = '{seccion}', @p_program_id = {programaParam}"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_ASIGNATURAS}
+                    @p_blck_code = {seccion},
+                    @p_program_id = {programa ?? ""}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarDocentesRepository(string seccion, string asignatura)
+        public async Task<List<Encuesta>> ListarDocentes(string seccion, string asignatura)
         {
+            if (string.IsNullOrWhiteSpace(seccion) || string.IsNullOrWhiteSpace(asignatura))
+                throw new ArgumentException("La sección y asignatura no pueden estar vacías");
+
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                $"EXEC BANINST1.SZKENC.P_LISTAR_DOCENTES_ASIGNATURA @p_seccion = '{seccion}', @p_asignatura = '{asignatura}'"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_DOCENTES}
+                    @p_seccion = {seccion},
+                    @p_asignatura = {asignatura}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarTipoProgramaRepository(string seccion)
+        public async Task<List<Encuesta>> ListarTipoPrograma(string seccion)
         {
+            if (string.IsNullOrWhiteSpace(seccion))
+                throw new ArgumentException("La sección no puede estar vacía", nameof(seccion));
+
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                $"EXEC BANINST1.SZKENC.P_LISTAR_TIPO_PROGRAMA @P_BLCK_CODE = '{seccion}'"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_TIPO_PROGRAMA}
+                    @P_BLCK_CODE = {seccion}"
             ).ToListAsync();
         }
 
-        public async Task<List<Encuesta>> ListarAsesoresRepository(string seccion)
+        public async Task<List<Encuesta>> ListarAsesores(string seccion)
         {
+            if (string.IsNullOrWhiteSpace(seccion))
+                throw new ArgumentException("La sección no puede estar vacía", nameof(seccion));
+
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                $"EXEC BANINST1.SZKENC.P_LISTAR_ASESORES @P_BLCK_CODE = '{seccion}'"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_ASESORES}
+                    @P_BLCK_CODE = {seccion}"
             ).ToListAsync();
         }
 
-        public async Task<int> CrearAsignaturaEncuestaRepository(Encuesta encuesta)
+        public async Task<int> CrearAsignaturaEncuesta(Encuesta encuesta)
         {
-            var nombreEncuestaParam = string.IsNullOrEmpty(encuesta.NombreEncuesta) ? "NULL" : $"'{encuesta.NombreEncuesta}'";
-            var descripcionParam = string.IsNullOrEmpty(encuesta.DescripcionEncuesta) ? "NULL" : $"'{encuesta.DescripcionEncuesta}'";
-            var tipoEncuestaIdParam = encuesta.TipoEncuestaId.HasValue ? encuesta.TipoEncuestaId.ToString() : "NULL";
-            var tipoEncuestadoIdParam = encuesta.TipoEncuestadoId.HasValue ? encuesta.TipoEncuestadoId.ToString() : "NULL";
-            var tipoProgramaParam = string.IsNullOrEmpty(encuesta.TipoPrograma) ? "NULL" : $"'{encuesta.TipoPrograma}'";
-            var sedeParam = string.IsNullOrEmpty(encuesta.Sede) ? "NULL" : $"'{encuesta.Sede}'";
-            var periodoIdParam = string.IsNullOrEmpty(encuesta.PeriodoId) ? "NULL" : $"'{encuesta.PeriodoId}'";
-            var seccionIdParam = string.IsNullOrEmpty(encuesta.SeccionId) ? "NULL" : $"'{encuesta.SeccionId}'";
-            var moduloParam = string.IsNullOrEmpty(encuesta.Modulo) ? "NULL" : $"'{encuesta.Modulo}'";
-            var docenteParam = string.IsNullOrEmpty(encuesta.Docente) ? "NULL" : $"'{encuesta.Docente}'";
-            var fechaInicioParam = encuesta.FechaInicio == DateTime.MinValue ? "NULL" : $"'{encuesta.FechaInicio:yyyy-MM-dd}'";
-            var fechaFinParam = encuesta.FechaFin == DateTime.MinValue ? "NULL" : $"'{encuesta.FechaFin:yyyy-MM-dd}'";
-            var activoParam = encuesta.Activo.HasValue ? (encuesta.Activo.Value ? "1" : "0") : "NULL";
-            var usuarioParam = string.IsNullOrEmpty(encuesta.UsuarioCreacion) ? "NULL" : $"'{encuesta.UsuarioCreacion}'";
+            if (encuesta == null)
+                throw new ArgumentNullException(nameof(encuesta));
 
-            var sql = $@"
-                EXEC ENC.sp_CrearEncuestaAsignatura_UC 
-                    @NOMBRE_ENCUESTA = {nombreEncuestaParam},
-                    @DESCRIPCION_ENCUESTA = {descripcionParam},
-                    @TIPO_ENCUESTA_ID = {tipoEncuestaIdParam},
-                    @TIPO_ENCUESTADO_ID = {tipoEncuestadoIdParam},
-                    @TIPO_PROGRAMA = {tipoProgramaParam},
-                    @SEDE = {sedeParam},
-                    @PERIODO_ID = {periodoIdParam},
-                    @SECCION_ID = {seccionIdParam},
-                    @MODULO = {moduloParam},
-                    @DOCENTE = {docenteParam},
-                    @FECHA_INICIO = {fechaInicioParam},
-                    @FECHA_FIN = {fechaFinParam},
-                    @ACTIVO = {activoParam},
-                    @FECHA_ENVIO = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}',
-                    @USUARIO_ENVIO = {usuarioParam}";
+            ValidarEncuesta(encuesta);
 
-            return await _sqlContext.Database.SqlQuery<int>(sql).FirstOrDefaultAsync();
+            var resultado = await _sqlContext.Database.SqlQuery<int>(
+                $@"EXEC {StoredProcedureNames.SP_CREAR_ENCUESTA_ASIGNATURA}
+                @NOMBRE_ENCUESTA = {encuesta.NombreEncuesta},
+                @DESCRIPCION_ENCUESTA = {encuesta.DescripcionEncuesta},
+                @TIPO_ENCUESTA_ID = {encuesta.TipoEncuestaId},
+                @TIPO_ENCUESTADO_ID = {encuesta.TipoEncuestadoId},
+                @TIPO_PROGRAMA = {encuesta.TipoPrograma},
+                @SEDE = {encuesta.Sede},
+                @PERIODO_ID = {encuesta.PeriodoId},
+                @SECCION_ID = {encuesta.SeccionId},
+                @MODULO = {encuesta.Modulo},
+                @DOCENTE = {encuesta.Docente},
+                @FECHA_INICIO = {encuesta.FechaInicio},
+                @FECHA_FIN = {encuesta.FechaFin},
+                @ACTIVO = {(encuesta.Activo ? 1 : 0)},
+                @FECHA_ENVIO = {DateTime.Now},
+                @USUARIO_ENVIO = {encuesta.UsuarioCreacion}"
+            ).FirstOrDefaultAsync();
+
+            return resultado;
         }
 
-        public async Task<List<Encuesta>> ListarAlumnosRepository(string seccion, string asignatura)
+        public async Task<List<Encuesta>> ListarAlumnos(string seccion, string asignatura)
         {
+            if (string.IsNullOrWhiteSpace(seccion) || string.IsNullOrWhiteSpace(asignatura))
+                throw new ArgumentException("La sección y asignatura no pueden estar vacías");
+
             return await _bannerContext.Database.SqlQuery<Encuesta>(
-                $"EXEC BANINST1.SZKENC.P_LISTAR_CORREOS_ENCUESTA @p_asignatura = '{asignatura}', @p_seccion = '{seccion}'"
+                $@"EXEC {StoredProcedureNames.SP_LISTAR_CORREOS_ENCUESTA}
+                    @p_asignatura = {asignatura},
+                    @p_seccion = {seccion}"
             ).ToListAsync();
+        }
+
+        public async Task<int> CrearPlantillaEncuesta(Encuesta encuesta)
+        {
+            if (encuesta == null)
+                throw new ArgumentNullException(nameof(encuesta));
+
+            ValidarEncuesta(encuesta);
+
+            var resultado = await _sqlContext.Database.SqlQuery<int>(
+                $@"EXEC {StoredProcedureNames.SP_CREAR_ENCUESTA_PLANTILLA}
+                    @NOMBRE_ENCUESTA = {encuesta.NombreEncuesta},
+                    @DESCRIPCION_ENCUESTA = {encuesta.DescripcionEncuesta},
+                    @TIPO_ENCUESTA_ID = {encuesta.TipoEncuestaId},
+                    @FECHA_CREACION = {DateTime.Now},
+                    @USUARIO_CREACION = {encuesta.UsuarioCreacion}"
+            ).FirstOrDefaultAsync();
+
+            return resultado;
+        }
+
+        public async Task EditarEncuestaPlantilla(Encuesta encuesta)
+        {
+            if (encuesta == null)
+                throw new ArgumentNullException(nameof(encuesta));
+            if (encuesta.EncuestaId < 1)
+                throw new ArgumentException("El ID de encuesta es inválido");
+
+            await _sqlContext.Database.ExecuteSqlInterpolatedAsync(
+                $@"EXEC {StoredProcedureNames.SP_EDITAR_PLANTILLA_ENCUESTA}
+                    @ENCUESTA_ID = {encuesta.EncuestaId},
+                    @NOMBRE_ENCUESTA = {encuesta.NombreEncuesta},
+                    @DESCRIPCION_ENCUESTA = {encuesta.DescripcionEncuesta},
+                    @TIPO_ENCUESTA = {encuesta.TipoEncuestaId},
+                    @USUARIO_MODIFICACION = {encuesta.UsuarioModificacion},
+                    @FECHA_MODIFICACION = {DateTime.Now}"
+            );
+        }
+
+        public async Task EliminarEncuesta(int id, string usuario)
+        {
+            if (id < 1)
+                throw new ArgumentOutOfRangeException(nameof(id), "El ID debe ser mayor que 0");
+            if (string.IsNullOrWhiteSpace(usuario))
+                throw new ArgumentException("El usuario no puede estar vacío", nameof(usuario));
+
+            await _sqlContext.Database.ExecuteSqlInterpolatedAsync(
+               $@"EXEC {StoredProcedureNames.SP_ELIMINAR_ENCUESTA_PLANTILLA}
+                    @ENCUESTA_ID = {id},
+                    @USUARIO_MODIFICACION = {usuario},
+                    @FECHA_MODIFICACION = {DateTime.Now}"
+            );
+        }
+
+        public async Task EliminarBloque(int id, string usuario)
+        {
+            if (id < 1)
+                throw new ArgumentOutOfRangeException(nameof(id), "El ID debe ser mayor que 0");
+            if (string.IsNullOrWhiteSpace(usuario))
+                throw new ArgumentException("El usuario no puede estar vacío", nameof(usuario));
+
+            await _sqlContext.Database.ExecuteSqlInterpolatedAsync(
+                $@"EXEC {StoredProcedureNames.SP_ELIMINAR_BLOQUE_PLANTILLA}
+                    @BLOQUE_ID = {id},
+                    @USUARIO_MODIFICACION = {usuario},
+                    @FECHA_MODIFICACION = {DateTime.Now}"
+            );
+        }
+
+        public async Task EliminarPregunta(int id, string usuario)
+        {
+            if (id < 1)
+                throw new ArgumentOutOfRangeException(nameof(id), "El ID debe ser mayor que 0");
+            if (string.IsNullOrWhiteSpace(usuario))
+                throw new ArgumentException("El usuario no puede estar vacío", nameof(usuario));
+
+            await _sqlContext.Database.ExecuteSqlInterpolatedAsync(
+                    $@"EXEC {StoredProcedureNames.SP_ELIMINAR_PREGUNTA_PLANTILLA}
+                        @PREGUNTA_ID = {id},
+                        @USUARIO_MODIFICACION = {usuario},
+                        @FECHA_MODIFICACION = {DateTime.Now}"
+            );
+        }
+
+        private void ValidarEncuesta(Encuesta encuesta)
+        {
+            if (string.IsNullOrWhiteSpace(encuesta.NombreEncuesta))
+                throw new ArgumentException("El nombre de la encuesta no puede estar vacío");
+            if (string.IsNullOrWhiteSpace(encuesta.UsuarioCreacion))
+                throw new ArgumentException("El usuario de creación no puede estar vacío");
+            if (encuesta.TipoEncuestaId < 1)
+                throw new ArgumentException("El tipo de encuesta es inválido");
         }
 
         public async Task InsertarEncuestasPorAsignaturaBulkAsync(int encuestaId, string usuario, List<string> alumnos, int tipoEncuestadoId)
         {
+            if (encuestaId < 1)
+                throw new ArgumentOutOfRangeException(nameof(encuestaId));
+            if (string.IsNullOrWhiteSpace(usuario))
+                throw new ArgumentException("El usuario no puede estar vacío");
+            if (alumnos == null || !alumnos.Any())
+                throw new ArgumentException("La lista de alumnos no puede estar vacía");
+
             var connection = _sqlContext.Database.GetDbConnection();
 
             try
@@ -220,76 +340,6 @@ namespace AssesmentUC.Infrastructure.Repository.Impl
                 if (connection.State == ConnectionState.Open)
                     await connection.CloseAsync();
             }
-        }
-
-        public async Task<int> CrearPlantillaEncuestaRepository(Encuesta encuesta)
-        {
-            var nombreEncuestaParam = string.IsNullOrEmpty(encuesta.NombreEncuesta) ? "NULL" : $"'{encuesta.NombreEncuesta}'";
-            var descripcionParam = string.IsNullOrEmpty(encuesta.DescripcionEncuesta) ? "NULL" : $"'{encuesta.DescripcionEncuesta}'";
-            var tipoEncuestaIdParam = encuesta.TipoEncuestaId.HasValue ? encuesta.TipoEncuestaId.ToString() : "NULL";
-            var usuarioParam = string.IsNullOrEmpty(encuesta.UsuarioCreacion) ? "NULL" : $"'{encuesta.UsuarioCreacion}'";
-
-            var sql = $@"
-                EXEC ENC.sp_CrearEncuestaPlantilla_UC 
-                    @NOMBRE_ENCUESTA = {nombreEncuestaParam},
-                    @DESCRIPCION_ENCUESTA = {descripcionParam},
-                    @TIPO_ENCUESTA_ID = {tipoEncuestaIdParam},
-                    @FECHA_CREACION = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}',
-                    @USUARIO_CREACION = {usuarioParam}";
-
-            return await _sqlContext.Database.SqlQuery<int>(sql).FirstOrDefaultAsync();
-        }
-
-        public async Task EditarEncuestaPlantillaRepository(Encuesta encuesta)
-        {
-            var nombreEncuestaParam = string.IsNullOrEmpty(encuesta.NombreEncuesta) ? "NULL" : $"'{encuesta.NombreEncuesta}'";
-            var descripcionParam = string.IsNullOrEmpty(encuesta.DescripcionEncuesta) ? "NULL" : $"'{encuesta.DescripcionEncuesta}'";
-            var tipoEncuestaParam = encuesta.TipoEncuestaId.HasValue ? encuesta.TipoEncuestaId.ToString() : "NULL";
-            var usuarioParam = string.IsNullOrEmpty(encuesta.UsuarioModificacion) ? "NULL" : $"'{encuesta.UsuarioModificacion}'";
-
-            var sql = $@"
-                EXEC ENC.sp_EditarPlantillaEncuesta_UC 
-                    @ENCUESTA_ID = {encuesta.EncuestaId},
-                    @NOMBRE_ENCUESTA = {nombreEncuestaParam},
-                    @DESCRIPCION_ENCUESTA = {descripcionParam},
-                    @TIPO_ENCUESTA = {tipoEncuestaParam},
-                    @USUARIO_MODIFICACION = {usuarioParam},
-                    @FECHA_MODIFICACION = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}'";
-
-            await _sqlContext.Database.ExecuteSqlRawAsync(sql);
-        }
-
-        public async Task EliminarEncuestaRepository(int id, string usuario)
-        {
-            var sql = $@"
-                EXEC ENC.sp_EliminarEncuestaPlantilla_UC 
-                    @ENCUESTA_ID = {id},
-                    @USUARIO_MODIFICACION = '{usuario}',
-                    @FECHA_MODIFICACION = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}'";
-
-            await _sqlContext.Database.ExecuteSqlRawAsync(sql);
-        }
-
-        public async Task EliminarBloqueRepository(int id, string usuario)
-        {
-            var sql = $@"
-                EXEC ENC.sp_EliminarBloquePlantilla_UC 
-                    @BLOQUE_ID = {id},
-                    @USUARIO_MODIFICACION = '{usuario}',
-                    @FECHA_MODIFICACION = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}'";
-
-            await _sqlContext.Database.ExecuteSqlRawAsync(sql);
-        }
-
-        public async Task EliminarPreguntaRepository(int id, string usuario)
-        {
-            var sql = $@"
-                EXEC ENC.sp_EliminarPreguntaPlantilla_UC 
-                    @PREGUNTA_ID = {id},
-                    @USUARIO_MODIFICACION = '{usuario}',
-                    @FECHA_MODIFICACION = '{DateTime.Now:yyyy-MM-dd HH:mm:ss}'";
-
-            await _sqlContext.Database.ExecuteSqlRawAsync(sql);
         }
     }
 }

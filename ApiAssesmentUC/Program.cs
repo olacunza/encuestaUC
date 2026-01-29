@@ -9,7 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
+builder.Services.Configure<GoogleOAuthOptions>(builder.Configuration.GetSection(GoogleOAuthOptions.SectionName));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -17,27 +21,31 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
+       {
+           policy
+               .AllowAnyOrigin()
+               .AllowAnyMethod()
             .AllowAnyHeader();
-    });
+       });
 });
 
-// Configurar autenticación JWT (Google SSO)
+// Configurar autenticación JWT usando GoogleOAuthOptions
+var googleOAuthOptions = builder.Configuration.GetSection(GoogleOAuthOptions.SectionName).Get<GoogleOAuthOptions>();
+
+if (googleOAuthOptions == null)
+    throw new InvalidOperationException($"Sección '{GoogleOAuthOptions.SectionName}' no encontrada en appsettings.json");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://accounts.google.com";
+        options.Authority = googleOAuthOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidIssuer = "https://accounts.google.com",
-            ValidateAudience = true,
-            ValidAudience = "TU_CLIENT_ID.apps.googleusercontent.com", // <-- client_id real de la app Angular registrada en Gooogle
-            //Este client_id lo encuentras en la consola de Google Cloud → OAuth 2.0 Client IDs → columna “Client ID”.
-            ValidateLifetime = true
+            ValidateIssuer = googleOAuthOptions.ValidateIssuer,
+            ValidIssuer = googleOAuthOptions.ValidIssuer,
+            ValidateAudience = googleOAuthOptions.ValidateAudience,
+            ValidAudience = googleOAuthOptions.ClientId,
+            ValidateLifetime = googleOAuthOptions.ValidateLifetime
         };
     });
 
@@ -46,11 +54,8 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
 app.UseSwagger();
-    app.UseSwaggerUI();
-//}
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

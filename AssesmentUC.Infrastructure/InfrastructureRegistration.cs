@@ -13,7 +13,6 @@ namespace AssesmentUC.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Configurar SQL Server DbContext
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("BDPRACTICAS"),
@@ -25,17 +24,14 @@ namespace AssesmentUC.Infrastructure
                             errorNumbersToAdd: null);
                     }));
 
-            // Configurar Oracle DbContext
             services.AddDbContext<BannerDbContext>(options =>
                 options.UseOracle(
                     configuration.GetConnectionString("BANNER"),
                     oracleOptions =>
                     {
-                        oracleOptions.UseOracleSQLCompatibility("11");
-                        oracleOptions.CommandTimeout(300); // 5 minutos timeout
+                        oracleOptions.CommandTimeout(300);
                     }));
 
-            // Registrar repositorios
             services.AddScoped<IEncuestaRepository, EncuestaRepository>();
             services.AddScoped<IRespuestaRepository, RespuestaRepository>();
             services.AddScoped<IReporteRepository, ReporteRepository>();

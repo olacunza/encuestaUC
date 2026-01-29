@@ -26,7 +26,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<EncuestaListAllDTO>> ListarPlantillasEncuestasAsync(int pageNumber, int pageSize)
         {
-            var encuestas = await _encuestaRepository.ListarPlantillaEncuestasRepository(pageNumber, pageSize);
+            var encuestas = await _encuestaRepository.ListarPlantillaEncuestas(pageNumber, pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
@@ -51,7 +51,7 @@ namespace AssesmentUC.Service.Service.Impl
                 FechaFin = dto.FechaFin
             };
 
-            var encuestas = await _encuestaRepository.ListarAsignaturaEncuestasRepository(filtroEncuestaAsignatura, dto.pageNumber, dto.pageSize);
+            var encuestas = await _encuestaRepository.ListarAsignaturaEncuestas(filtroEncuestaAsignatura, dto.pageNumber, dto.pageSize);
 
             var dtoList = encuestas.Select(e => new EncuestaListAllDTO
             {
@@ -73,7 +73,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<EncuestaPlantillaDetailDTO> ListarPlantillaEncuestaIdAsync(int id)
         {
-            var encuesta = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(id);
+            var encuesta = await _encuestaRepository.ListarPlantillaEncuestaById(id);
 
             if (encuesta == null)
                 throw new InvalidOperationException($"No se encontró la encuesta con ID {id}");
@@ -107,7 +107,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarTipoEncuestaAsync()
         {
-            var tiposEncuesta = await _encuestaRepository.ListarTipoEncuestaRepository();
+            var tiposEncuesta = await _encuestaRepository.ListarTipoEncuesta();
 
             var dtoList = tiposEncuesta
                 .Select(e => new ListaTiposDTO
@@ -122,7 +122,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarSedesAsync()
         {
-            var sedes = await _encuestaRepository.ListarSedesRepository();
+            var sedes = await _encuestaRepository.ListarSedes();
 
             var dtoList = sedes
                 .Select(e => new ListaTiposDTO
@@ -136,7 +136,7 @@ namespace AssesmentUC.Service.Service.Impl
         }
         public async Task<List<ListaTiposDTO>> ListarPeriodosAsync()
         {
-            var periodos = await _encuestaRepository.ListarPeriodosRepository();
+            var periodos = await _encuestaRepository.ListarPeriodos();
 
             var dtoList = periodos
                 .Select(e => new ListaTiposDTO
@@ -150,7 +150,7 @@ namespace AssesmentUC.Service.Service.Impl
         }
         public async Task<List<ListaTiposDTO>> ListarSeccionesAsync()
         {
-            var secciones = await _encuestaRepository.ListarSeccionesRepository();
+            var secciones = await _encuestaRepository.ListarSecciones();
 
             var dtoList = secciones
                 .Select(e => new ListaTiposDTO
@@ -165,7 +165,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarAsignaturasAsync(string seccion, string? programa)
         {
-            var asignaturas = await _encuestaRepository.ListarAsignaturasRepository(seccion, programa);
+            var asignaturas = await _encuestaRepository.ListarAsignaturas(seccion, programa);
 
             var dtoList = asignaturas
                 .Select(e => new ListaTiposDTO
@@ -180,7 +180,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarDocentesAsync(string seccion, string asignatura)
         {
-            var docentes = await _encuestaRepository.ListarDocentesRepository(seccion, asignatura);
+            var docentes = await _encuestaRepository.ListarDocentes(seccion, asignatura);
 
             var dtoList = docentes
                 .Select(e => new ListaTiposDTO
@@ -195,7 +195,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarTipoProgramaAsync(string seccion)
         {
-            var tiposPrograma = await _encuestaRepository.ListarTipoProgramaRepository(seccion);
+            var tiposPrograma = await _encuestaRepository.ListarTipoPrograma(seccion);
 
             var dtoList = tiposPrograma
                 .Select(e => new ListaTiposDTO
@@ -210,7 +210,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarAsesoresAsync(string seccion)
         {
-            var listAsesores = await _encuestaRepository.ListarAsesoresRepository(seccion);
+            var listAsesores = await _encuestaRepository.ListarAsesores(seccion);
 
             var dtoList = listAsesores
                 .Select(e => new ListaTiposDTO
@@ -225,7 +225,7 @@ namespace AssesmentUC.Service.Service.Impl
 
         public async Task<List<ListaTiposDTO>> ListarTipoEncuestadoAsync()
         {
-            var tiposEncuestado = await _encuestaRepository.ListarTipoEncuestadoRepository();
+            var tiposEncuestado = await _encuestaRepository.ListarTipoEncuestado();
 
             var dtoList = tiposEncuestado
                 .Select(e => new ListaTiposDTO
@@ -242,7 +242,7 @@ namespace AssesmentUC.Service.Service.Impl
         {
             int encuestaPlantillaId = dto.Encuesta.EncuestaId;
 
-            var encuestaPlantilla = await _encuestaRepository.ListarPlantillaEncuestaIdRepository(encuestaPlantillaId);
+            var encuestaPlantilla = await _encuestaRepository.ListarPlantillaEncuestaById(encuestaPlantillaId);
 
             var encuesta = new Encuesta
             {
@@ -279,7 +279,7 @@ namespace AssesmentUC.Service.Service.Impl
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            int encuestaId = await _encuestaRepository.CrearAsignaturaEncuestaRepository(encuesta);
+            int encuestaId = await _encuestaRepository.CrearAsignaturaEncuesta(encuesta);
 
             List<EncuestadoDNIDTO> listaEncuestados = await EnviarCorreoEncuestaAsync(dto.DatosCorreo, dto.Encuesta, encuestaId);
 
@@ -321,7 +321,7 @@ namespace AssesmentUC.Service.Service.Impl
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            return await _encuestaRepository.CrearPlantillaEncuestaRepository(encuesta);
+            return await _encuestaRepository.CrearPlantillaEncuesta(encuesta);
         }
 
 
@@ -356,22 +356,22 @@ namespace AssesmentUC.Service.Service.Impl
                 }).ToList() ?? new List<EncuestaBloque>()
             };
 
-            await _encuestaRepository.EditarEncuestaPlantillaRepository(encuesta);
+            await _encuestaRepository.EditarEncuestaPlantilla(encuesta);
         }
 
         public async Task EliminarEncuestaAsync(int id, string usuario)
         {
-            await _encuestaRepository.EliminarEncuestaRepository(id, usuario);
+            await _encuestaRepository.EliminarEncuesta(id, usuario);
         }
 
         public async Task EliminarBloqueAsync(int id, string usuario)
         {
-            await _encuestaRepository.EliminarBloqueRepository(id, usuario);
+            await _encuestaRepository.EliminarBloque(id, usuario);
         }
 
         public async Task EliminarPreguntaAsync(int id, string usuario)
         {
-            await _encuestaRepository.EliminarPreguntaRepository(id, usuario);
+            await _encuestaRepository.EliminarPregunta(id, usuario);
         }
 
         public async Task<List<EncuestadoDNIDTO>> EnviarCorreoEncuestaAsync(EncuestaDatosCorreoDTO dtoCorreo, EncuestaAsignaturaCreateDTO dtoEncuesta, int encuestaId)
@@ -381,7 +381,7 @@ namespace AssesmentUC.Service.Service.Impl
             switch (dtoEncuesta.TipoEncuestadoId)
             {
                 case 1: //alumnos
-                    var alumnos = await _encuestaRepository.ListarAlumnosRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    var alumnos = await _encuestaRepository.ListarAlumnos(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
                     listaEncuestados = alumnos.Select(a => new EncuestadoDNIDTO
                     {
                         EncuestadoId = a.AlumnoId,
@@ -390,7 +390,7 @@ namespace AssesmentUC.Service.Service.Impl
                     break;
 
                 case 2: //docentes
-                    var docentes = await _encuestaRepository.ListarDocentesRepository(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
+                    var docentes = await _encuestaRepository.ListarDocentes(dtoEncuesta.SeccionId, dtoEncuesta.NRC);
                     listaEncuestados = docentes.Select(d => new EncuestadoDNIDTO
                     {
                         EncuestadoId = d.DocenteId,
