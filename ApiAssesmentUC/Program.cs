@@ -43,9 +43,8 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = googleOAuthOptions.Authority;
 
-        options.MetadataAddress = $"{googleOAuthOptions.Authority}/.well-known/openid-configuration";
+        options.Authority = googleOAuthOptions.Authority;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -59,9 +58,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             ValidateIssuerSigningKey = true,
 
-            RequireSignedTokens = true,
+            ClockSkew = TimeSpan.FromMinutes(5),
 
-            ClockSkew = TimeSpan.FromMinutes(5)
+            NameClaimType = "name"
+
         };
 
         options.Events = new JwtBearerEvents
@@ -101,11 +101,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization(options => {
-    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -116,3 +112,11 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+
+app.Run();

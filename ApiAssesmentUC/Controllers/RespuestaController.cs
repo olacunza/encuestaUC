@@ -3,10 +3,12 @@ using AssesmentUC.Service.DTO.Respuesta;
 using AssesmentUC.Service.Service.Impl;
 using AssesmentUC.Service.Service.Interface;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssesmentUC.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/")]
     public class RespuestaController : ControllerBase
@@ -19,6 +21,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ListarEncuestasRespondidas/{alumnoID}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ListarEncuestasRespondidasAsync(string alumnoID)
         {
             var encuesta = await _respuestaService.ListarEncuestasRespondidasAsync(alumnoID);
@@ -26,6 +30,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpPost("RegistrarRespuesta")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RegistrarRespuestaAsync([FromBody] RespuestaEncuestaCreateDTO dto)
         {
             try
@@ -52,6 +58,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("VerificarEncuestaRespondida/{encuestaId}/{alumnoId}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> VerificarSiRespondioAsync(int encuestaId, string alumnoId)
         {
             bool respondido = await _respuestaService.VerificarSiRespondioAsync(encuestaId, alumnoId);
@@ -81,6 +89,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ListaEncuestasPendientes/{alumnoId}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ListaEncuestaAsignaturaAsync(string alumnoId)
         {
             var encuesta = await _respuestaService.ListaEncuestaAsignaturaAsync(alumnoId);

@@ -1,8 +1,10 @@
 ﻿using AssesmentUC.Service.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssesmentUC.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/")]
     public class ReporteController : ControllerBase
@@ -14,6 +16,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ExportarValoresEncuestaDocente")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ExportarValoresEncuestaDocente(int encuestaId)
         {
             var valoresDocente = await _reporteService.ExportarValoresEncuestaDocente(encuestaId);
@@ -25,6 +29,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ExportarValoresEncuestaAsesor")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ExportarValoresEncuestaAsesor(int encuestaId)
         {
             var valoresDocente = await _reporteService.ExportarValoresEncuestaAsesor(encuestaId);
@@ -36,6 +42,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("ExportarValoresEncuestaAlumno")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ExportarValoresEncuestaAlumno(int encuestaId)
         {
             var valoresDocente = await _reporteService.ExportarValoresEncuestaAlumno(encuestaId);
@@ -47,6 +55,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("GenerarPdfEncuestaAlumno/{id}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GenerarPdfEncuestaAlumno(int id)
         {
             try
@@ -60,6 +70,8 @@ namespace AssesmentUC.Api.Controllers
             }
         }
         [HttpGet("GenerarPdfEncuestaDocente/{id}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GenerarPdfEncuestaDocente(int id)
         {
             try
@@ -74,6 +86,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("GenerarPdfEncuestaAsesor/{id}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GenerarPdfEncuestaAsesor(int id)
         {
             try
@@ -88,6 +102,8 @@ namespace AssesmentUC.Api.Controllers
         }
 
         [HttpGet("GenerarExcelEncuesta/{id}")]
+        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GenerarExcelEncuesta(int id)
         {
             try
